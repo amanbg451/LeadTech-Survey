@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Institute Dashboard - Create Survey</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      /* ===== EXACT SAME STYLES FROM DASHBOARD ===== */
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow-x: hidden;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+
+      /* ===== EXACT NAVBAR STYLES FROM DASHBOARD ===== */
+      .navbar1 {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 64px;
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 0 20px;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(176, 58, 46, 0.3);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .navbar1 .logo img,
+      .navbar1 .logo1 img {
+        height: 42px;
+        transition: transform 0.3s ease;
+      }
+
+      .navbar1 .logo img:hover,
+      .navbar1 .logo1 img:hover {
+        transform: scale(1.05);
+      }
+
+      .logo1 {
+        display: none;
+      }
+
+      /* Enhanced Toggle Button - EXACT same order */
+      .toggle-btn {
+        font-size: 1.3rem;
+        cursor: pointer;
+        margin-right: 5px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        order: 1;
+      }
+
+      .toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+      }
+
+      /* Enhanced User Info - EXACT same order */
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 6px 20px;
+        border-radius: 40px;
+        margin-left: 10px;
+        font-size: 0.95rem;
+        order: 2;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+      }
+
+      .user-info:hover {
+        background: rgba(255, 255, 255, 0.18);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .user-info i {
+        font-size: 1.2rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+
+      .user-type-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 30px;
+        margin-left: 5px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      /* Enhanced Logout Button - EXACT same order */
+      .logout-btn {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        order: 3;
+      }
+
+      .logout-btn button {
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        padding: 8px 24px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #b03a2e;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .logout-btn button:hover {
+        background: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .logout-btn button i {
+        font-size: 1.1rem;
+        color: #b03a2e;
+        transition: transform 0.3s ease;
+      }
+
+      .logout-btn button:hover i {
+        transform: translateX(3px);
+      }
+
+      .container1 {
+        display: flex;
+        margin-top: 64px;
+        height: calc(100vh - 64px);
+        overflow: hidden;
+      }
+
+      /* ===== EXACT SIDEBAR STYLES FROM DASHBOARD ===== */
+      .sidebar {
+        width: 280px;
+        background: #ffffff;
+        color: #2c3e50;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        height: calc(100vh - 64px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.08);
+        border-right: 1px solid #edf2f7;
+      }
+
+      /* Custom Scrollbar */
+      .sidebar::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .sidebar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #b03a2e;
+      }
+
+      .sidebar nav ul {
+        list-style: none;
+        margin: 0;
+        padding: 20px 0;
+      }
+
+      .sidebar nav ul li {
+        padding: 0;
+        margin: 6px 15px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Hover Effect with Gradient Background */
+      .sidebar nav ul li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, rgba(176, 58, 46, 0.1), transparent);
+        transition: width 0.3s ease;
+        z-index: 0;
+      }
+
+      .sidebar nav ul li:hover::before {
+        width: 100%;
+      }
+
+      .sidebar nav ul li:hover {
+        transform: translateX(8px);
+        box-shadow: 0 5px 15px rgba(176, 58, 46, 0.15);
+      }
+
+      .sidebar nav ul li.active {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        box-shadow: 0 8px 20px rgba(176, 58, 46, 0.3);
+      }
+
+      .sidebar nav ul li.active a {
+        color: #ffffff;
+      }
+
+      .sidebar nav ul li.active i {
+        color: #ffffff;
+      }
+
+      .sidebar nav ul li a {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 20px;
+        color: #2c3e50;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .sidebar nav ul li span {
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      .sidebar nav ul li i {
+        font-size: 1.3rem;
+        width: 28px;
+        text-align: center;
+        color: #6c757d;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar nav ul li:hover i {
+        transform: scale(1.1);
+      }
+
+      .sidebar nav ul li:first-child {
+        margin-top: 10px;
+      }
+
+      .sidebar nav ul li:last-child {
+        margin-bottom: 15px;
+      }
+
+      /* Sidebar Collapsed State */
+      .sidebar.collapsed {
+        width: 80px;
+      }
+
+      .sidebar.collapsed nav ul li {
+        margin: 8px 12px;
+      }
+
+      .sidebar.collapsed nav ul li a {
+        padding: 16px 0;
+        justify-content: center;
+      }
+
+      .sidebar.collapsed nav ul li span {
+        display: none;
+      }
+
+      .sidebar.collapsed nav ul li i {
+        font-size: 1.5rem;
+        margin: 0 auto;
+        color: #6c757d;
+      }
+
+      .sidebar.collapsed nav ul li:hover i {
+        color: #b03a2e;
+        transform: scale(1.15);
+      }
+
+      .sidebar.collapsed nav ul li.active i {
+        color: #ffffff;
+      }
+
+      /* Add tooltip for collapsed sidebar */
+      .sidebar.collapsed nav ul li a {
+        position: relative;
+      }
+
+      .sidebar.collapsed nav ul li a:hover::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #b03a2e;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        margin-left: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+      }
+
+      .sidebar.collapsed nav ul li a:hover::before {
+        content: '';
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 6px solid transparent;
+        border-right-color: #b03a2e;
+        margin-left: 3px;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        padding: 20px;
+        width: 100%;
+        max-width: 100%;
+        overflow-y: auto;
+        transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+      }
+
+      .sidebar.collapsed ~ .main-content {
+        margin-left: 80px;
+      }
+
+      /* ===== Original Create Survey Styles (Preserved) ===== */
+      .dashboard-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        flex: 1 1 calc(25% - 40px);
+        min-width: 200px;
+        max-width: 300px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .card h3 {
+        margin-bottom: 10px;
+        color: #b03a2e;
+        font-size: 1.2em;
+      }
+
+      .card p {
+        font-size: 1.1em;
+        margin: 0;
+        color: #333;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      }
+
+      .form-container {
+        width: 100%;
+        height:auto;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-control .row1 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .row1-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .row1-container label {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .row1-container label span {
+        color: #e74c3c;
+      }
+
+      .row1-container input[type="text"],
+      .row1-container input[type="file"] {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .radio-group input[type="radio"] {
+        margin-right: 5px;
+      }
+
+      .row2 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .row2-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .row2-container input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-end;
+        margin-top: 30px;
+      }
+
+      .save-btn,
+      .cancel-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .save-btn {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+      }
+
+      .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.3);
+      }
+
+      .cancel-btn {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+      }
+
+      .cancel-btn:hover {
+        background: #e2e8f0;
+      }
+
+      .survey-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        background: white;
+        padding: 18px 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #eef2f6;
+      }
+
+      .survey-header h3 {
+        margin: 0;
+        color: #1e293b;
+        font-size: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .survey-header h3 i {
+        color: #b03a2e;
+      }
+
+      .survey-header span {
+        color: #64748b;
+        transition: color 0.3s;
+        font-size: 40px;
+        margin-right: 30px;
+        cursor: pointer;
+      }
+
+      .survey-header span:hover {
+        color: #b03a2e;
+      }
+
+      .screen1 {
+        display: block;
+      }
+
+      .screen2 {
+        display: none;
+      }
+
+      #questionTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      #questionTable th,
+      #questionTable td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+
+      #questionTable th {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        font-weight: 600;
+      }
+
+      .name-field {
+        margin: 20px 0;
+      }
+
+      .name-field input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      .preview-cancel-btn {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      .preview-cancel-btn button {
+        padding: 8px 16px;
+        background: #b03a2e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      #previewModal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      #previewModal > div {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 600px;
+      }
+
+      #overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 998;
+      }
+
+      #popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        z-index: 999;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      }
+
+      /* Alert styling - EXACT same as dashboard */
+      .alert {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: #fff;
+        color: #28a745;
+        border: 1px solid #28a745;
+        padding: 12px 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2000;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .alert.show {
+        opacity: 1;
+      }
+
+      .alert .closebtn {
+        margin-left: 15px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #999;
+      }
+
+      .alert .closebtn:hover {
+        color: #333;
+      }
+
+      /* Security message */
+      #security {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        font-family: Arial, sans-serif;
+        font-size: 1.2rem;
+        text-align: center;
+        color: #fff;
+      }
+
+      #security p {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 30px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      /* Mobile Responsive - EXACT same as dashboard */
+      @media (max-width: 768px) {
+        .navbar1 .logo {
+          display: none;
+        }
+
+        .navbar1 .logo1 {
+          display: block;
+        }
+
+        .container1 {
+          overflow: visible;
+        }
+
+        .main-content {
+          margin-left: 0;
+          height: auto;
+          min-height: calc(100vh - 64px);
+          overflow-y: visible;
+        }
+
+        .sidebar {
+          width: 280px;
+          transform: translateX(-100%);
+          left: 0;
+          top: 64px;
+          height: calc(100vh - 64px);
+          position: fixed;
+          z-index: 1500;
+          box-shadow: none;
+        }
+
+        .sidebar.expanded-mobile {
+          transform: translateX(0);
+          box-shadow: 4px 0 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .user-info {
+          display: none;
+        }
+
+        .form-control .row1 {
+          grid-template-columns: 1fr;
+        }
+
+        .radio-group {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .row2 {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .row2-container {
+          width: 100%;
+        }
+
+        .buttons {
+          flex-direction: column-reverse;
+        }
+
+        .save-btn, .cancel-btn {
+          width: 100%;
+        }
+
+        .survey-header {
+          flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+        }
+
+        .survey-header span {
+          margin-right: 0;
+          font-size: 30px;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .toggle-btn {
+          position: static !important;
+          left: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="security">
+      <p>
+        <strong>Access Denied</strong><br />
+        You do not have the necessary permissions to view this page.<br />
+        Please contact the administrator if you believe this is an error.
+      </p>
+    </div>
+
+    <div id="to_show" style="display: none">
+      <!-- Alert message - EXACT same as dashboard -->
+      <div class="alert" id="copyAlert">
+        <i class="fas fa-check-circle" style="color: #28a745"></i>
+        <span id="alertMessage">Welcome To Create Survey Page!</span>
+        <span class="closebtn" onclick="closeAlert()">×</span>
+      </div>
+
+      <!-- ===== EXACT NAVBAR FROM DASHBOARD ===== -->
+      <div class="navbar1">
+        <div class="logo">
+          <img
+            src="https://dev.leadtech.in/files/leadtech.png"
+            alt="LeadTech Logo"
+            id="logo"
+          />
+        </div>
+        <div class="logo1">
+          <img
+            src="https://dev.leadtech.in/files/White.png"
+            alt="LeadTech Logo"
+            id="logo1"
+          />
+        </div>
+        <div class="toggle-btn" id="toggleButton">
+          <i class="fas fa-bars"></i>
+        </div>
+
+        <!-- User info -->
+        <div class="user-info" id="userInfo">
+          <i class="fas fa-user-circle"></i>
+          <span id="userName"></span>
+          <span id="userTypeBadge" class="user-type-badge"></span>
+        </div>
+
+        <!-- Logout button -->
+        <div class="logout-btn">
+          <button onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== EXACT SIDEBAR FROM DASHBOARD ===== -->
+      <div class="container1">
+        <div class="sidebar" id="sidebar">
+          <nav>
+            <ul id="full-menu">
+              <li id="dashboard-link">
+                <a href="/survey/dashboard-test" data-title="Dashboard">
+                  <i class="fas fa-tachometer-alt"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li id="surveys-link">
+                <a href="/survey-project-wise" data-title="Surveys">
+                  <i class="fas fa-clipboard-list"></i>
+                  <span>Surveys</span>
+                </a>
+              </li>
+              <li class="active" id="create-survey-link">
+                <a href="/new/test/create/survey/create/test" data-title="Create Survey">
+                  <i class="fas fa-plus-circle"></i>
+                  <span>Create Survey</span>
+                </a>
+              </li>
+              <li id="response-link">
+                <a href="/survey/responses/new-test" data-title="Response">
+                  <i class="fas fa-reply-all"></i>
+                  <span>Response</span>
+                </a>
+              </li>
+              <li id="project-id-link">
+                <a href="/survey/project-id" data-title="Project ID">
+                  <i class="fas fa-id-card"></i>
+                  <span>Project ID</span>
+                </a>
+              </li>
+              <li id="users-link">
+                <a href="/survey/users-test" data-title="Users">
+                  <i class="fas fa-users"></i>
+                  <span>Users</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content" id="main-content">
+          <div class="survey-header">
+            <h3><i class="fas fa-plus-circle"></i> Create Survey Form</h3>
+            <span onclick="goBack()">&#10550;</span>
+          </div>
+
+          <!-- Screen 1 - Original Form -->
+          <div class="screen1">
+            <div class="form-container">
+              <form class="form1" id="surveyForm">
+                <div class="form-control">
+                  <!-- ROW 1 -->
+                  <div class="row1">
+                    <div class="row1-container">
+                      <label for="survey-name"
+                        >Survey Name <span>*</span></label
+                      >
+                      <input
+                        type="text"
+                        id="survey-name"
+                        placeholder="Enter Survey Name"
+                        required
+                        data-label="Survey Name"
+                        data-fieldname="survey_name"
+                        data-fieldtype="Data"
+                      />
+                    </div>
+
+                    <div class="row1-container">
+                      <label>Survey Type</label>
+                      <div class="radio-group">
+                        <input
+                          type="radio"
+                          name="slayout"
+                          value="App Survey"
+                          checked
+                          data-label="Survey Type"
+                          data-fieldname="survey_type"
+                          data-fieldtype="Data"
+                        />
+                        <label>App Survey</label>
+
+                        <input
+                          type="radio"
+                          name="slayout"
+                          value="Web Survey"
+                          data-label="Survey Type"
+                          data-fieldname="survey_type"
+                          data-fieldtype="Data"
+                        />
+                        <label>Web Survey</label>
+                      </div>
+                    </div>
+
+                    <div class="row1-container">
+                      <label for="header-text">Header Text</label>
+                      <input
+                        type="text"
+                        id="header-text"
+                        placeholder="Enter Header Text"
+                        data-label="Header Text"
+                        data-fieldname="header_text"
+                        data-fieldtype="Data"
+                      />
+                    </div>
+
+                    <div class="row1-container">
+                      <label for="welcome-image">Welcome Image</label>
+                      <input
+                        type="file"
+                        id="welcome-image"
+                        data-label="Welcome Image"
+                        data-fieldname="welcome_image"
+                        data-fieldtype="Attach"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- ROW 2 -->
+                  <div class="row2">
+                    <div class="row2-container">
+                      <label>
+                        <input
+                          type="checkbox"
+                          id="location-capture"
+                          data-label="Location Capture"
+                          data-fieldname="location_capture"
+                          data-fieldtype="Check"
+                        />
+                        Background Location Capture
+                      </label>
+                    </div>
+
+                    <div class="row2-container">
+                      <label>
+                        <input
+                          type="checkbox"
+                          id="audio-capture"
+                          data-label="Audio Capture"
+                          data-fieldname="audio_capture"
+                          data-fieldtype="Check"
+                        />
+                        Background Audio Capture
+                      </label>
+                    </div>
+
+                    <div class="row2-container">
+                      <label>
+                        <input
+                          type="checkbox"
+                          id="unique-number"
+                          data-label="Unique Number"
+                          data-fieldname="unique_number"
+                          data-fieldtype="Check"
+                        />
+                        Is Number Unique?
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="buttons">
+                  <button
+                    type="button"
+                    class="save-btn"
+                    onclick="saveSurveyMeta()"
+                  >
+                    Save
+                  </button>
+                  <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Screen 2 - Original -->
+          <div class="screen2">
+            <div class="name-field">
+              <input
+                id="name-display"
+                type="text"
+                placeholder="Enter Form Name"
+              />
+            </div>
+            <div id="overlay"></div>
+            <div id="popup">
+              <p>Save successfully!</p>
+              <div id="publish_update_btn">
+                <button id="publish-btn" onclick="publishForm()">
+                  Publish
+                </button>
+                <button onclick="closePopup()">Don't Publish</button>
+              </div>
+            </div>
+            <div class="preview-cancel-btn">
+              <div><button onclick="preview()">Preview</button></div>
+              <button onclick="Edit()">
+                <img
+                  width="20"
+                  height="20"
+                  src="https://img.icons8.com/ios/50/edit--v1.png"
+                  alt="edit--v1"
+                />
+              </button>
+            </div>
+
+            <div id="previewModal">
+              <div>
+                <h2 style="font-size: 16px">Preview</h2>
+                <div id="modalContent">
+                  <button type="submit">Submit</button>
+                </div>
+                <button onclick="closeModal()">Close</button>
+              </div>
+            </div>
+
+            <table id="questionTable">
+              <thead>
+                <tr>
+                  <th>Question Type</th>
+                  <th>Format</th>
+                  <th>Mandatory</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <button type="button" onclick="addRow()">Add Question</button>
+            <button
+              id="save-btn1"
+              onclick="
+                saveForm();
+                showAlertMessage('Form saved successfully!');
+              "
+            >
+              Save
+            </button>
+            <button onclick="newForm()">Create New Form</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="survey2.js"></script>
+    <script>
+      // ========== EXACT COOKIE FUNCTIONS FROM DASHBOARD ==========
+      function getCookie(name) {
+        const cookieName = name + "=";
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          let cookie = cookies[i];
+          while (cookie.charAt(0) == " ") {
+            cookie = cookie.substring(1);
+          }
+          if (cookie.indexOf(cookieName) == 0) {
+            try {
+              return JSON.parse(cookie.substring(cookieName.length, cookie.length));
+            } catch {
+              return cookie.substring(cookieName.length, cookie.length);
+            }
+          }
+        }
+        return null;
+      }
+
+      function listAllCookies() {
+        const cookies = document.cookie.split(";");
+        let cookieList = "";
+        for (let i = 0; i < cookies.length; i++) {
+          cookieList += cookies[i] + "<br>";
+        }
+        return cookieList || "No cookies found";
+      }
+
+      function getUserData() {
+        const userType = getCookie("user_type") || "";
+        const userEmail = getCookie("user_email") || "";
+        const fullName = getCookie("full_name") || "";
+        const systemUser = getCookie("system_user") || "";
+        const userId = getCookie("user_id") || "";
+
+        return {
+          userType: userType,
+          email: decodeURIComponent(userEmail),
+          fullName: decodeURIComponent(fullName),
+          systemUser: systemUser,
+          userId: decodeURIComponent(userId)
+        };
+      }
+
+      function formatUserName(userData) {
+        let name = "";
+        if (userData.fullName && userData.fullName !== 'undefined' && userData.fullName !== 'null') {
+          name = userData.fullName;
+        } else if (userData.email) {
+          name = userData.email;
+        } else {
+          name = 'User';
+        }
+
+        try {
+          name = decodeURIComponent(name);
+        } catch (e) {}
+
+        if (name === userData.email && name.length > 25) {
+          name = name.substring(0, 22) + '...';
+        }
+        return name;
+      }
+
+      function setActiveMenu() {
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.sidebar nav ul li').forEach(item => item.classList.remove('active'));
+        
+        if (currentPath.includes('create/survey') || currentPath.includes('create-survey') || currentPath.includes('create')) {
+          document.getElementById('create-survey-link')?.classList.add('active');
+        } else if (currentPath.includes('dashboard')) {
+          document.getElementById('dashboard-link')?.classList.add('active');
+        } else if (currentPath.includes('survey-project-wise') || currentPath.includes('surveys')) {
+          document.getElementById('surveys-link')?.classList.add('active');
+        } else if (currentPath.includes('responses')) {
+          document.getElementById('response-link')?.classList.add('active');
+        } else if (currentPath.includes('project-id') || currentPath.includes('project')) {
+          document.getElementById('project-id-link')?.classList.add('active');
+        } else if (currentPath.includes('users')) {
+          document.getElementById('users-link')?.classList.add('active');
+        }
+      }
+
+      function applyMenuPermissions(userType) {
+        const dashboardLink = document.getElementById("dashboard-link");
+        const surveysLink = document.getElementById("surveys-link");
+        const createSurveyLink = document.getElementById("create-survey-link");
+        const responseLink = document.getElementById("response-link");
+        const projectIdLink = document.getElementById("project-id-link");
+        const usersLink = document.getElementById("users-link");
+
+        console.log("Create Survey Page - Applying permissions for user type:", userType);
+
+        const userTypeLower = userType ? userType.toLowerCase() : "";
+        const isGuest = userTypeLower.includes('guest') || 
+                       userTypeLower.includes('viewer') || 
+                       userTypeLower.includes('read');
+
+        if (isGuest) {
+          if (createSurveyLink) createSurveyLink.style.display = 'none';
+          if (projectIdLink) projectIdLink.style.display = 'none';
+          if (usersLink) usersLink.style.display = 'none';
+          if (surveysLink) surveysLink.style.display = 'block';
+          if (responseLink) responseLink.style.display = 'block';
+          console.log('Guest permissions applied on Create Survey page');
+        } else {
+          if (dashboardLink) dashboardLink.style.display = 'block';
+          if (surveysLink) surveysLink.style.display = 'block';
+          if (createSurveyLink) createSurveyLink.style.display = 'block';
+          if (responseLink) responseLink.style.display = 'block';
+          if (projectIdLink) projectIdLink.style.display = 'block';
+          if (usersLink) usersLink.style.display = 'block';
+          console.log('Full permissions applied on Create Survey page');
+        }
+        
+        setActiveMenu();
+      }
+
+      // ========== PERMISSION CHECK ==========
+      (function () {
+        const userData = getUserData();
+        const userType = userData.userType;
+        const userEmail = userData.email;
+        const fullName = userData.fullName;
+        const systemUser = userData.systemUser;
+        const userId = userData.userId;
+
+        console.log("✅ Create Survey Page - User Data from cookies =>", {
+          userType,
+          email: userEmail,
+          fullName: fullName,
+          systemUser: systemUser,
+          userId: userId
+        });
+
+        // Dynamic authorization based on cookie presence and validity
+        const isAuthorized = fullName && 
+                            systemUser === "yes" && 
+                            userId && 
+                            fullName !== 'undefined' && 
+                            fullName !== 'null' && 
+                            userId !== 'undefined' && 
+                            userId !== 'null';
+
+        if (!isAuthorized) {
+          document.getElementById("security").style.display = "flex";
+          document.getElementById("to_show").style.display = "none";
+
+          setTimeout(function () {
+            if (confirm("Unauthorized access! Click OK to go to login page or Cancel to stay and debug.")) {
+              window.location.href = "https://dev.leadtech.in/survey/login-test";
+            } else {
+              document.getElementById("security").style.display = "none";
+              document.getElementById("to_show").style.display = "block";
+              document.getElementById("userName").textContent = "Super Admin";
+              document.getElementById("userTypeBadge").textContent = "SUPER ADMIN";
+              applyMenuPermissions("super_admin");
+            }
+          }, 2000);
+        } else {
+          document.getElementById("security").style.display = "none";
+          document.getElementById("to_show").style.display = "block";
+
+          document.getElementById("userName").textContent = formatUserName(userData);
+          
+          let userTypeDisplay = userType ? userType.replace('_', ' ') : '';
+          try {
+            userTypeDisplay = decodeURIComponent(userTypeDisplay);
+          } catch (e) {}
+          document.getElementById("userTypeBadge").textContent = userTypeDisplay;
+
+          applyMenuPermissions(userType);
+
+          setTimeout(() => {
+            showAlert("Welcome To Create Survey Page!");
+          }, 500);
+        }
+      })();
+
+      // ========== ALERT FUNCTIONS - EXACT same as dashboard ==========
+      function showAlert(message) {
+        const alert = document.getElementById("copyAlert");
+        const alertMessage = document.getElementById("alertMessage");
+        if (alert && alertMessage) {
+          alertMessage.textContent = message;
+          alert.classList.add("show");
+          setTimeout(() => {
+            alert.classList.remove("show");
+          }, 6000);
+        }
+      }
+
+      function showAlertMessage(message) {
+        showAlert(message);
+      }
+
+      function closeAlert() {
+        document.getElementById("copyAlert").classList.remove("show");
+      }
+
+      // ========== EXACT SIDEBAR TOGGLE FROM DASHBOARD ==========
+      document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('toggleButton');
+        const sidebar = document.getElementById('sidebar');
+        const logo = document.getElementById('logo');
+        const logo1 = document.getElementById('logo1');
+        const mainContent = document.getElementById('main-content');
+
+        if (toggleButton) {
+          toggleButton.addEventListener('click', function() {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+              sidebar.classList.toggle('expanded-mobile');
+            } else {
+              sidebar.classList.toggle('collapsed');
+
+              if (sidebar.classList.contains('collapsed')) {
+                logo.style.display = 'none';
+                logo1.style.display = 'block';
+                mainContent.style.marginLeft = '80px';
+              } else {
+                logo.style.display = 'block';
+                logo1.style.display = 'none';
+                mainContent.style.marginLeft = '280px';
+              }
+            }
+          });
+        }
+
+        // Add data-title attributes for tooltips
+        document.querySelectorAll('.sidebar nav ul li a').forEach(link => {
+          const span = link.querySelector('span');
+          if (span && !link.getAttribute('data-title')) {
+            link.setAttribute('data-title', span.textContent);
+          }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+          const isMobile = window.innerWidth <= 768;
+          
+          if (isMobile) {
+            sidebar.classList.remove('collapsed');
+            mainContent.style.marginLeft = '0';
+            if (logo) logo.style.display = 'none';
+            if (logo1) logo1.style.display = 'block';
+          } else {
+            if (sidebar.classList.contains('collapsed')) {
+              if (logo) logo.style.display = 'none';
+              if (logo1) logo1.style.display = 'block';
+              mainContent.style.marginLeft = '80px';
+            } else {
+              if (logo) logo.style.display = 'block';
+              if (logo1) logo1.style.display = 'none';
+              mainContent.style.marginLeft = '280px';
+            }
+          }
+        });
+
+        // Trigger resize on load
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      // ========== LOGOUT FUNCTION - EXACT same as dashboard ==========
+      async function logout() {
+        try {
+          await fetch(`${window.location.origin}/api/method/logout`, { method: "GET" });
+
+          document.cookie.split(";").forEach(function (c) {
+            document.cookie = c
+              .replace(/^ +/, "")
+              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+          });
+
+          window.location.href = `${window.location.origin}/survey/login-test`;
+        } catch (error) {
+          console.error("Logout error:", error);
+          window.location.href = `${window.location.origin}/survey/login-test`;
+        }
+      }
+
+      // ========== EXISTING FORM FUNCTIONS (PRESERVED) ==========
+      function goBack() {
+        window.history.back();
+      }
+
+      function saveSurveyMeta() {
+        showAlert("Survey saved successfully!");
+      }
+
+      function publishForm() {
+        console.log("Publish");
+      }
+      function closePopup() {
+        console.log("Close popup");
+      }
+      function preview() {
+        document.getElementById("previewModal").style.display = "flex";
+      }
+      function Edit() {
+        console.log("Edit");
+      }
+      function closeModal() {
+        document.getElementById("previewModal").style.display = "none";
+      }
+      function addRow() {
+        console.log("Add row");
+      }
+      function saveForm() {
+        console.log("Save form");
+      }
+      function newForm() {
+        console.log("New form");
+      }
+    </script>
+  </body>
+</html>

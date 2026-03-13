@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institute Dashboard - Project ID</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    /* ===== EXACT SAME STYLES FROM DASHBOARD ===== */
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    /* ===== EXACT NAVBAR STYLES FROM DASHBOARD ===== */
+    .navbar1 {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 64px;
+      background: linear-gradient(135deg, #b03a2e, #c0392b);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      padding: 0 20px;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(176, 58, 46, 0.3);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar1 .logo img,
+    .navbar1 .logo1 img {
+      height: 42px;
+      transition: transform 0.3s ease;
+    }
+
+    .navbar1 .logo img:hover,
+    .navbar1 .logo1 img:hover {
+      transform: scale(1.05);
+    }
+
+    .logo1 {
+      display: none;
+    }
+
+    /* Enhanced Toggle Button - EXACT same order */
+    .toggle-btn {
+      font-size: 1.3rem;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      order: 1;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+
+    /* Enhanced User Info - EXACT same order */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 6px 20px;
+      border-radius: 40px;
+      margin-left: 10px;
+      font-size: 0.95rem;
+      order: 2;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .user-info:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-info i {
+      font-size: 1.2rem;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .user-type-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 30px;
+      margin-left: 5px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Enhanced Logout Button - EXACT same order */
+    .logout-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      order: 3;
+    }
+
+    .logout-btn button {
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      padding: 8px 24px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #b03a2e;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .logout-btn button:hover {
+      background: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .logout-btn button i {
+      font-size: 1.1rem;
+      color: #b03a2e;
+      transition: transform 0.3s ease;
+    }
+
+    .logout-btn button:hover i {
+      transform: translateX(3px);
+    }
+
+    .container1 {
+      display: flex;
+      margin-top: 64px;
+    }
+
+    /* ===== EXACT SIDEBAR STYLES FROM DASHBOARD ===== */
+    .sidebar {
+      width: 280px;
+      background: #ffffff;
+      color: #2c3e50;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      height: calc(100vh - 64px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #edf2f7;
+    }
+
+    /* Custom Scrollbar */
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #b03a2e;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 25px 0;
+    }
+
+    .sidebar nav ul li {
+      padding: 0;
+      margin: 6px 15px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Hover Effect with Gradient Background */
+    .sidebar nav ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(176, 58, 46, 0.1), transparent);
+      transition: width 0.3s ease;
+      z-index: 0;
+    }
+
+    .sidebar nav ul li:hover::before {
+      width: 100%;
+    }
+
+    .sidebar nav ul li:hover {
+      transform: translateX(8px);
+      box-shadow: 0 5px 15px rgba(176, 58, 46, 0.15);
+    }
+
+    .sidebar nav ul li.active {
+      background: linear-gradient(135deg, #b03a2e, #c0392b);
+      box-shadow: 0 8px 20px rgba(176, 58, 46, 0.3);
+    }
+
+    .sidebar nav ul li.active a {
+      color: #ffffff;
+    }
+
+    .sidebar nav ul li.active i {
+      color: #ffffff;
+    }
+
+    .sidebar nav ul li a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 20px;
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar nav ul li span {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .sidebar nav ul li i {
+      font-size: 1.3rem;
+      width: 28px;
+      text-align: center;
+      color: #6c757d;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar nav ul li:hover i {
+      transform: scale(1.1);
+    }
+
+    .sidebar nav ul li:first-child {
+      margin-top: 10px;
+    }
+
+    .sidebar nav ul li:last-child {
+      margin-bottom: 15px;
+    }
+
+    /* Sidebar Collapsed State */
+    .sidebar.collapsed {
+      width: 80px;
+    }
+
+    .sidebar.collapsed nav ul li {
+      margin: 8px 12px;
+    }
+
+    .sidebar.collapsed nav ul li a {
+      padding: 16px 0;
+      justify-content: center;
+    }
+
+    .sidebar.collapsed nav ul li span {
+      display: none;
+    }
+
+    .sidebar.collapsed nav ul li i {
+      font-size: 1.5rem;
+      margin: 0 auto;
+      color: #6c757d;
+    }
+
+    .sidebar.collapsed nav ul li:hover i {
+      color: #b03a2e;
+      transform: scale(1.15);
+    }
+
+    .sidebar.collapsed nav ul li.active i {
+      color: #ffffff;
+    }
+
+    /* Add tooltip for collapsed sidebar */
+    .sidebar.collapsed nav ul li a {
+      position: relative;
+    }
+
+    .sidebar.collapsed nav ul li a:hover::after {
+      content: attr(data-title);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #b03a2e;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      margin-left: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .sidebar.collapsed nav ul li a:hover::before {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-right-color: #b03a2e;
+      margin-left: 3px;
+    }
+
+    /* ===== UPDATED MAIN CONTENT STYLES - CENTERED ===== */
+    .main-content {
+      margin-left: 280px;
+      padding: 20px;
+      width: calc(100% - 280px);
+      max-width: 1400px;
+      margin-right: auto;
+      overflow-x: hidden;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* When sidebar is collapsed */
+    .sidebar.collapsed ~ .main-content {
+      margin-left: 80px;
+      width: calc(100% - 80px);
+    }
+
+    /* Center all direct children in main-content */
+    .main-content > * {
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Specifically center the form container */
+    .main-content .form-container {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Center the heading as well */
+    .main-content h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* ===== Project ID Page Specific Styles (Preserved) ===== */
+    button {
+      background: linear-gradient(135deg, #b03a2e, #c0392b);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      box-shadow: 0 4px 8px rgba(176, 58, 46, 0.2);
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #c0392b, #b03a2e);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(176, 58, 46, 0.3);
+    }
+    
+    button.outline {
+      background: transparent;
+      color: #b03a2e;
+      border: 2px solid #b03a2e;
+      padding: 8px 18px;
+      box-shadow: none;
+    }
+    
+    button.outline:hover {
+      background: #b03a2e;
+      color: white;
+    }
+    
+    input[type="text"], 
+    input[type="text"]:focus, 
+    select {
+      padding: 12px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: white;
+      color: #1e293b;
+      font-weight: 500;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #b03a2e;
+      box-shadow: 0 0 0 3px rgba(176, 58, 46, 0.1);
+    }
+
+    input[type="text"][readonly] {
+      background-color: #f8fafc;
+      border-color: #e2e8f0;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .form-container {
+      max-width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+      border: 1px solid #eef2f6;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+    
+    .form-group label span {
+      color: #e74c3c;
+      font-size: 16px;
+    }
+    
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 14px;
+      background: white;
+      color: #1e293b;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .form-group select:focus {
+      outline: none;
+      border-color: #b03a2e;
+      box-shadow: 0 0 0 3px rgba(176, 58, 46, 0.1);
+    }
+    
+    .form-group select option {
+      font-weight: normal;
+    }
+    
+    .form-group small {
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    .form-group small i {
+      margin-right: 4px;
+    }
+    
+    .form-container button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #b03a2e, #c0392b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 0 10px 0;
+      box-shadow: 0 4px 10px rgba(176, 58, 46, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .form-container button:hover {
+      background: linear-gradient(135deg, #c0392b, #b03a2e);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(176, 58, 46, 0.3);
+    }
+    
+    .form-container button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    
+    h2 {
+      color: #1e293b;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+
+    /* Security message - EXACT same as dashboard */
+    #security {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #b03a2e, #c0392b);
+      font-family: Arial, sans-serif;
+      font-size: 1.2rem;
+      text-align: center;
+      color: #fff;
+    }
+
+    #security p {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Alert styling - EXACT same as dashboard */
+    .alert {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: #fff;
+      color: #28a745;
+      border: 1px solid #28a745;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2000;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .alert.show {
+      opacity: 1;
+    }
+
+    .alert .closebtn {
+      margin-left: 15px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #999;
+    }
+
+    .alert .closebtn:hover {
+      color: #333;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #64748b;
+    }
+
+    .loading i {
+      color: #b03a2e;
+    }
+
+    /* Mobile Responsive - EXACT same as dashboard */
+    @media (max-width: 768px) {
+      .navbar1 .logo {
+        display: none;
+      }
+
+      .navbar1 .logo1 {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+      }
+
+      .main-content > * {
+        max-width: 100%;
+      }
+
+      .sidebar {
+        width: 280px;
+        transform: translateX(-100%);
+        left: 0;
+        top: 64px;
+        height: calc(100vh - 64px);
+        position: fixed;
+        z-index: 1500;
+        box-shadow: none;
+      }
+
+      .sidebar.expanded-mobile {
+        transform: translateX(0);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.25);
+      }
+
+      .user-info {
+        display: none;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .toggle-btn {
+        position: static !important;
+        left: auto !important;
+      }
+    }
+</style>
+</head>
+<body>
+
+  <!-- Security Message -->
+  <div id="security">
+    <p>
+      <strong>Access Denied</strong><br />
+      You do not have the necessary permissions to view this page.<br />
+      Please contact the administrator if you believe this is an error.
+    </p>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div id="to_show" style="display: none">
+    <!-- Alert message - EXACT same as dashboard -->
+    <div class="alert" id="copyAlert">
+      <i class="fas fa-check-circle" style="color: #28a745;"></i>
+      Welcome To Project ID Page!
+      <span class="closebtn" onclick="closeAlert()">×</span>
+    </div>
+
+    <!-- ===== EXACT NAVBAR FROM DASHBOARD ===== -->
+    <div class="navbar1">
+      <div class="logo">
+        <img src="https://dev.leadtech.in/files/leadtech.png" alt="LeadTech Logo" id="logo" />
+      </div>
+      <div class="logo1">
+        <img src="https://dev.leadtech.in/files/White.png" alt="LeadTech Logo" id="logo1" />
+      </div>
+      <div class="toggle-btn" id="toggleButton">
+        <i class="fas fa-bars"></i>
+      </div>
+      
+      <div class="user-info" id="userInfo">
+        <i class="fas fa-user-circle"></i>
+        <span id="userName"></span>
+        <span id="userTypeBadge" class="user-type-badge"></span>
+      </div>
+
+      <div class="logout-btn">
+        <button onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== EXACT SIDEBAR FROM DASHBOARD ===== -->
+    <div class="container1">
+      <div class="sidebar" id="sidebar">
+        <nav>
+          <ul id="full-menu">
+            <li id="dashboard-link">
+              <a href="/survey/dashboard-test" data-title="Dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li id="surveys-link">
+              <a href="/survey-project-wise" data-title="Surveys">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Surveys</span>
+              </a>
+            </li>
+            <li id="create-survey-link">
+              <a href="/new/test/create/survey/create/test" data-title="Create Survey">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Survey</span>
+              </a>
+            </li>
+            <li id="response-link">
+              <a href="/survey/responses/new-test" data-title="Response">
+                <i class="fas fa-reply-all"></i>
+                <span>Response</span>
+              </a>
+            </li>
+            <li class="active" id="project-id-link">
+              <a href="/survey/project-id" data-title="Project ID">
+                <i class="fas fa-id-card"></i>
+                <span>Project ID</span>
+              </a>
+            </li>
+            <li id="users-link">
+              <a href="/survey/users-test" data-title="Users">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- ===== MAIN CONTENT - NOW CENTERED ===== -->
+      <div class="main-content" id="main-content">
+        <h2>Create Project ID</h2>
+
+        <div class="form-container">
+          <div class="form-group">
+            <label for="project_id">Project ID <span>*</span></label>
+            <input type="text" id="project_id" placeholder="e.g. PRJ-001">
+          </div>
+
+          <div class="form-group" id="clientField"></div>
+
+          <button onclick="submitForm()" id="submitBtn">Submit</button>
+
+          <div class="message" id="message"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== EXACT COOKIE FUNCTIONS FROM DASHBOARD ==========
+    function setCookie(name, value, days = 7) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      const expires = "expires=" + date.toUTCString();
+      document.cookie = name + "=" + JSON.stringify(value) + ";" + expires + ";path=/";
+    }
+
+    function getCookie(name) {
+      const cookieName = name + "=";
+      const cookies = document.cookie.split(';');
+      for(let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) == ' ') {
+          cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(cookieName) == 0) {
+          try {
+            return JSON.parse(cookie.substring(cookieName.length, cookie.length));
+          } catch {
+            return cookie.substring(cookieName.length, cookie.length);
+          }
+        }
+      }
+      return null;
+    }
+
+    // Get user data from cookies
+    function getUserData() {
+      const userType = getCookie('user_type');
+      const userEmail = getCookie('user_email');
+      const fullName = getCookie('full_name');
+      const userLoginData = getCookie('user_login_data');
+      const projects = getCookie('user_projects');
+      const clients = getCookie('user_clients');
+      const userId = getCookie('user_id');
+      
+      let clientId = null;
+      
+      // Extract client_id from user_login_data if available
+      if (userLoginData && userLoginData.message) {
+        if (userLoginData.message.client_id) {
+          clientId = userLoginData.message.client_id;
+        }
+      }
+      
+      // Also check direct client_id cookie
+      const directClientId = getCookie('client_id');
+      if (directClientId && !clientId) {
+        clientId = directClientId;
+      }
+      
+      return {
+        userType: userType,
+        email: userEmail,
+        fullName: fullName,
+        userLoginData: userLoginData,
+        projects: projects,
+        clients: clients,
+        userId: userId,
+        clientId: clientId
+      };
+    }
+
+    // Format user name for display - EXACT same as dashboard
+    function formatUserName(userData) {
+      let name = "";
+      if (userData.fullName && userData.fullName !== 'undefined' && userData.fullName !== 'null') {
+        name = userData.fullName;
+      } else if (userData.email) {
+        name = userData.email;
+      } else {
+        name = 'User';
+      }
+
+      try {
+        name = decodeURIComponent(name);
+      } catch (e) {}
+
+      if (name === userData.email && name.length > 25) {
+        name = name.substring(0, 22) + '...';
+      }
+      return name;
+    }
+
+    // Set active menu based on current URL
+    function setActiveMenu() {
+      const currentPath = window.location.pathname;
+      document.querySelectorAll('.sidebar nav ul li').forEach(item => item.classList.remove('active'));
+      
+      if (currentPath.includes('/project-id')) {
+        document.getElementById('project-id-link')?.classList.add('active');
+      } else if (currentPath.includes('/dashboard')) {
+        document.getElementById('dashboard-link')?.classList.add('active');
+      } else if (currentPath.includes('/survey-project-wise')) {
+        document.getElementById('surveys-link')?.classList.add('active');
+      } else if (currentPath.includes('/create/survey')) {
+        document.getElementById('create-survey-link')?.classList.add('active');
+      } else if (currentPath.includes('/responses')) {
+        document.getElementById('response-link')?.classList.add('active');
+      }
+    }
+
+    // ========== PERMISSION CHECK ==========
+    (function () {
+      const userData = getUserData();
+      const userType = userData.userType;
+      const userEmail = userData.email;
+
+      console.log("✅ Project ID Page - User Data from cookies =>", { 
+        userType, 
+        email: userEmail,
+        fullName: userData.fullName,
+        clientId: userData.clientId
+      });
+
+      // Check if user is authorized
+      const isAuthorized = userType === "super_admin" || userType === "authorized" || userType === "guest";
+
+      if (!isAuthorized || !userEmail) {
+        // Show security message and hide content
+        document.getElementById("security").style.display = "flex";
+        document.getElementById("to_show").style.display = "none";
+
+        setTimeout(function () {
+          alert("Unauthorized access! Redirecting to the login page.");
+          window.location.href = "https://dev.leadtech.in/survey/login-test";
+        }, 2000);
+      } else {
+        // Show content
+        document.getElementById("security").style.display = "none";
+        document.getElementById("to_show").style.display = "block";
+        
+        // Update user info in navbar
+        document.getElementById('userName').textContent = formatUserName(userData);
+        
+        let userTypeDisplay = userType ? userType.replace('_', ' ') : '';
+        try {
+          userTypeDisplay = decodeURIComponent(userTypeDisplay);
+        } catch (e) {}
+        document.getElementById('userTypeBadge').textContent = userTypeDisplay;
+        
+        // Apply menu permissions based on user type
+        applyMenuPermissions(userType);
+        
+        // Render client field based on user data
+        renderClientField();
+        
+        // Show welcome alert
+        showAlert();
+      }
+    })();
+
+    // ========== MENU PERMISSIONS ==========
+    
+    // Apply menu permissions based on user type
+    function applyMenuPermissions(userType) {
+      const surveysLink = document.getElementById('surveys-link');
+      const createSurveyLink = document.getElementById('create-survey-link');
+      const responseLink = document.getElementById('response-link');
+      const projectIdLink = document.getElementById('project-id-link');
+      const usersLink = document.getElementById('users-link');
+
+      console.log('Project ID Page - Applying permissions for user type:', userType);
+
+      if (userType === 'guest') {
+        // GUEST: Only show Dashboard, Surveys, Response
+        if (createSurveyLink) createSurveyLink.style.display = 'none';
+        if (projectIdLink) projectIdLink.style.display = 'none';
+        if (usersLink) usersLink.style.display = 'none';
+        if (surveysLink) surveysLink.style.display = 'block';
+        if (responseLink) responseLink.style.display = 'block';
+        
+        console.log('Guest permissions applied on Project ID page');
+        
+      } else {
+        // Authorized and Super Admin: Show all menus
+        if (surveysLink) surveysLink.style.display = 'block';
+        if (createSurveyLink) createSurveyLink.style.display = 'block';
+        if (responseLink) responseLink.style.display = 'block';
+        if (projectIdLink) projectIdLink.style.display = 'block';
+        if (usersLink) usersLink.style.display = 'block';
+        
+        console.log('Full permissions applied on Project ID page');
+      }
+      
+      // Set active menu after permissions are applied
+      setActiveMenu();
+    }
+
+    // ========== ALERT FUNCTIONS - EXACT same as dashboard ==========
+    function showAlert() {
+      const alert = document.getElementById("copyAlert");
+      if (alert) {
+        alert.classList.add("show");
+        setTimeout(() => alert.classList.remove("show"), 3000);
+      }
+    }
+
+    function closeAlert() {
+      const alert = document.getElementById("copyAlert");
+      if (alert) alert.classList.remove("show");
+    }
+
+    // ========== LOGOUT FUNCTION - EXACT same as dashboard ==========
+    async function logout() {
+      try {
+        await fetch(`${window.location.origin}/api/method/logout`, { 
+          method: 'GET' 
+        });
+        
+        document.cookie.split(";").forEach(function(c) { 
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        window.location.href = `${window.location.origin}/survey/login-test`;
+      } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = `${window.location.origin}/survey/login-test`;
+      }
+    }
+
+    // ========== EXACT SIDEBAR TOGGLE FROM DASHBOARD ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButton = document.getElementById('toggleButton');
+      const sidebar = document.getElementById('sidebar');
+      const logo = document.getElementById('logo');
+      const logo1 = document.getElementById('logo1');
+      const mainContent = document.getElementById('main-content');
+
+      if (toggleButton) {
+        toggleButton.addEventListener('click', function() {
+          const isMobile = window.innerWidth <= 768;
+
+          if (isMobile) {
+            sidebar.classList.toggle('expanded-mobile');
+          } else {
+            sidebar.classList.toggle('collapsed');
+
+            if (sidebar.classList.contains('collapsed')) {
+              logo.style.display = 'none';
+              logo1.style.display = 'block';
+            } else {
+              logo.style.display = 'block';
+              logo1.style.display = 'none';
+            }
+          }
+        });
+      }
+
+      // Add data-title attributes for tooltips
+      document.querySelectorAll('.sidebar nav ul li a').forEach(link => {
+        const span = link.querySelector('span');
+        if (span && !link.getAttribute('data-title')) {
+          link.setAttribute('data-title', span.textContent);
+        }
+      });
+    });
+
+    // ========== PROJECT ID PAGE SPECIFIC FUNCTIONS (PRESERVED) ==========
+
+    // Get all unique client IDs from projects (fallback method)
+    function getAllClientsFromProjects(projects) {
+      if (!projects || !Array.isArray(projects)) {
+        return [];
+      }
+      
+      const clients = new Set();
+      projects.forEach(project => {
+        if (project.client) {
+          clients.add(project.client);
+        }
+      });
+      
+      return Array.from(clients).sort();
+    }
+
+    // Render client field based on user type and data
+    function renderClientField() {
+      const userData = getUserData();
+      const clientFieldDiv = document.getElementById("clientField");
+      const submitBtn = document.getElementById("submitBtn");
+      
+      console.log('User Data from cookies:', userData);
+      console.log('User Type:', userData.userType);
+      console.log('Client ID:', userData.clientId);
+      console.log('Clients Array:', userData.clients);
+      
+      if (userData.userType === "super_admin") {
+        // Super Admin: Use clients array from login response if available
+        let clientOptions = [];
+        
+        if (userData.clients && userData.clients.length > 0) {
+          // Use the clients array directly from login response
+          clientOptions = userData.clients;
+          console.log('Using clients array from login:', clientOptions);
+        } else {
+          // Fallback: Extract from projects
+          clientOptions = getAllClientsFromProjects(userData.projects);
+          console.log('Using clients from projects:', clientOptions);
+        }
+        
+        if (clientOptions.length > 0) {
+          let options = '<option value="">-- Select Client --</option>';
+          clientOptions.forEach(client => {
+            options += `<option value="${client}">${client}</option>`;
+          });
+          
+          clientFieldDiv.innerHTML = `
+            <label for="client">Client <span>*</span></label>
+            <select id="client" required>
+              ${options}
+            </select>
+          `;
+        } else {
+          clientFieldDiv.innerHTML = `
+            <label for="client">Client <span>*</span></label>
+            <select id="client" required>
+              <option value="">-- No clients available --</option>
+            </select>
+            <small style="color: #f00; display: block; margin-top: 5px;">
+              <i class="fas fa-exclamation-triangle"></i> No client data found
+            </small>
+          `;
+        }
+        submitBtn.disabled = false;
+        
+      } else if (userData.userType === "authorized" && userData.clientId) {
+        // Authorized User: Show readonly input with their client ID
+        clientFieldDiv.innerHTML = `
+          <label for="client">Client (Auto-assigned)</label>
+          <input type="text" id="client" value="${userData.clientId}" readonly>
+          <small style="color: #666; display: block; margin-top: 5px;">
+            <i class="fas fa-info-circle"></i> Client ID auto-assigned from your login
+          </small>
+        `;
+        submitBtn.disabled = false;
+        
+      } else if (userData.userType === "guest") {
+        // Guest user
+        clientFieldDiv.innerHTML = `
+          <label for="client">Client</label>
+          <input type="text" id="client" value="Guest Access - Limited" readonly disabled>
+          <small style="color: #f00; display: block; margin-top: 5px;">
+            <i class="fas fa-exclamation-triangle"></i> Guest users have limited permissions
+          </small>
+        `;
+        submitBtn.disabled = true;
+        
+      } else {
+        // Unknown user type
+        clientFieldDiv.innerHTML = `
+          <label for="client">Client</label>
+          <input type="text" id="client" value="No client assigned" readonly disabled>
+          <small style="color: #f00; display: block; margin-top: 5px;">
+            <i class="fas fa-exclamation-circle"></i> You don't have permission to create projects
+          </small>
+        `;
+        submitBtn.disabled = true;
+      }
+    }
+
+    // Submit form function
+    function submitForm() {
+      let projectId = document.getElementById("project_id").value.trim();
+      let client = document.getElementById("client").value.trim();
+      let messageDiv = document.getElementById("message");
+      let submitBtn = document.getElementById("submitBtn");
+
+      // Validation
+      if (!projectId) {
+        messageDiv.style.color = "red";
+        messageDiv.innerHTML = "❌ Please enter Project ID";
+        return;
+      }
+
+      if (!client || client === "-- Select Client --" || client === "Guest Access - Limited" || client === "No client assigned") {
+        messageDiv.style.color = "red";
+        messageDiv.innerHTML = "❌ Please select a valid client";
+        return;
+      }
+
+      // Disable button to prevent double submission
+      submitBtn.disabled = true;
+      messageDiv.style.color = "#333";
+      messageDiv.innerHTML = "⏳ Creating project...";
+
+      // Get user data for logging
+      const userData = getUserData();
+
+      // Prepare request data
+      const requestData = {
+        project_id: projectId,
+        client: client
+      };
+
+      console.log('Sending request:', requestData);
+      console.log('User Type:', userData.userType);
+      console.log('Client ID being used:', client);
+
+      // API credentials
+      const API_KEY = "405e0af40f3d04a";
+      const API_SECRET = "885b55cc21d37d2";
+      const API_URL = "https://dev.leadtech.in/api/resource/Project%20ID";
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `token ${API_KEY}:${API_SECRET}`,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(requestData)
+      })
+      .then(async res => {
+        let data = await res.json();
+        console.log('API Response:', data);
+        
+        if (!res.ok) {
+          throw new Error(data.exception || data.message || "API error");
+        }
+        
+        messageDiv.style.color = "green";
+        messageDiv.innerHTML = "✅ Project Created Successfully!";
+
+        // Clear form
+        document.getElementById("project_id").value = "";
+        if (userData.userType === "super_admin") {
+          document.getElementById("client").selectedIndex = 0;
+        }
+        
+        // Re-enable button
+        submitBtn.disabled = false;
+      })
+      .catch(err => {
+        console.error('Error details:', err);
+        messageDiv.style.color = "red";
+        messageDiv.innerHTML = "❌ Error creating project! " + err.message;
+        submitBtn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>

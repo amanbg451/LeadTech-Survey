@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Institute Dashboard · Survey Reports</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== EXACT SAME STYLES FROM DASHBOARD ===== */
+        @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --red: #b71c1c;
+            --red-mid: #c62828;
+            --red-light: #ef5350;
+            --bg: #f4f4f6;
+            --white: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 24px rgba(183, 28, 28, 0.08);
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: "DM Sans", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        .navbar1 {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 64px;
+            background: linear-gradient(135deg, #b03a2e, #c0392b);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(176, 58, 46, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .navbar1 .logo img, .navbar1 .logo1 img {
+            height: 42px;
+            transition: transform 0.3s ease;
+        }
+        .navbar1 .logo img:hover, .navbar1 .logo1 img:hover {
+            transform: scale(1.05);
+        }
+        .logo1 { display: none; }
+        .toggle-btn {
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            order: 1;
+        }
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 6px 20px;
+            border-radius: 40px;
+            margin-left: 10px;
+            font-size: 0.95rem;
+            order: 2;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .user-info i { font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .user-type-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 30px;
+            margin-left: 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .logout-btn {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            order: 3;
+        }
+        .logout-btn button {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #b03a2e;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .logout-btn button:hover {
+            background: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .logout-btn button i { font-size: 1.1rem; color: #b03a2e; transition: transform 0.3s ease; }
+        .logout-btn button:hover i { transform: translateX(3px); }
+        .container1 {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            color: #2c3e50;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            height: calc(100vh - 64px);
+            overflow-x: hidden;
+            overflow-y: auto;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.08);
+            border-right: 1px solid #edf2f7;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: #b03a2e; }
+        .sidebar nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 25px 0;
+        }
+        .sidebar nav ul li {
+            padding: 0;
+            margin: 6px 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar nav ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(176, 58, 46, 0.1), transparent);
+            transition: width 0.3s ease;
+            z-index: 0;
+        }
+        .sidebar nav ul li:hover::before { width: 100%; }
+        .sidebar nav ul li:hover {
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(176, 58, 46, 0.15);
+        }
+        .sidebar nav ul li.active {
+            background: linear-gradient(135deg, #b03a2e, #c0392b);
+            box-shadow: 0 8px 20px rgba(176, 58, 46, 0.3);
+        }
+        .sidebar nav ul li.active a { color: #ffffff; }
+        .sidebar nav ul li.active i { color: #ffffff; }
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .sidebar nav ul li span { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.3px; }
+        .sidebar nav ul li i {
+            font-size: 1.3rem;
+            width: 28px;
+            text-align: center;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        .sidebar nav ul li:hover i { transform: scale(1.1); }
+        .sidebar.collapsed { width: 80px; }
+        .sidebar.collapsed nav ul li { margin: 8px 12px; }
+        .sidebar.collapsed nav ul li a { padding: 16px 0; justify-content: center; }
+        .sidebar.collapsed nav ul li span { display: none; }
+        .sidebar.collapsed nav ul li i { font-size: 1.5rem; margin: 0 auto; color: #6c757d; }
+        .sidebar.collapsed nav ul li:hover i { color: #b03a2e; transform: scale(1.15); }
+        .sidebar.collapsed nav ul li a:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #b03a2e;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            margin-left: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .sidebar.collapsed nav ul li a:hover::before {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: #b03a2e;
+            margin-left: 3px;
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+            overflow-y: auto;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+        .sidebar.collapsed ~ .main-content { margin-left: 80px; }
+        .page-header {
+            background: white;
+            padding: 0px 24px;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .page-header h2 { font-size: 1.5em; font-weight: 700; color: var(--red); }
+        .response-count {
+            background: linear-gradient(135deg, var(--red), var(--red-light));
+            color: white;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        /* filter panel removed */
+        /* debug panel removed */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+        .q-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        .q-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 32px rgba(183, 28, 28, 0.13);
+        }
+        .q-card-header {
+            background: linear-gradient(135deg, var(--red) 0%, #e53935 100%);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .q-card-header h3 {
+            color: white;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+        .q-total {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .q-card-body {
+            padding: 0;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #e57373 #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+        .q-card-body::-webkit-scrollbar { width: 5px; }
+        .q-card-body::-webkit-scrollbar-track { background: #f5f5f5; border-radius: 10px; }
+        .q-card-body::-webkit-scrollbar-thumb { background: #e57373; border-radius: 10px; }
+        .q-card-body::-webkit-scrollbar-thumb:hover { background: var(--red); }
+        .q-sticky-top {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 2;
+            padding: 14px 20px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .answer-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: "DM Sans", sans-serif;
+            font-size: 0.93em;
+            color: var(--text);
+            background: white;
+            cursor: pointer;
+            transition: border 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b71c1c' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+        .count-display {
+            display: none;
+            background: linear-gradient(135deg, #fff5f5, #fff);
+            border: 1.5px solid #fdd;
+            border-radius: 10px;
+            padding: 10px 16px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .count-display.show { display: block; }
+        .count-number { font-size: 2.2em; font-weight: 700; color: var(--red); font-family: "DM Mono", monospace; line-height: 1; }
+        .count-label { font-size: 0.8em; color: var(--muted); margin-top: 4px; font-weight: 500; }
+        .count-percentage {
+            display: inline-block;
+            background: rgba(183, 28, 28, 0.1);
+            color: var(--red);
+            border-radius: 20px;
+            padding: 2px 12px;
+            font-size: 0.82em;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .answers-list { padding: 8px 20px 16px; flex: 1; }
+        .answer-row {
+            display: flex;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .answer-label {
+            font-size: 0.87em;
+            color: var(--text);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+        }
+        .answer-bar-wrap {
+            flex: 0 0 100px;
+            height: 7px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+        .answer-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--red), var(--red-light));
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        .answer-count { font-size: 0.84em; font-weight: 700; color: var(--red); font-family: "DM Mono", monospace; min-width: 28px; text-align: right; }
+        .loader-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            grid-column: 1 / -1;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #fdd;
+            border-top: 4px solid var(--red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .empty-state i { font-size: 3em; color: #fcc; margin-bottom: 16px; display: block; }
+        .alert {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            color: var(--red);
+            border: 1.5px solid #fcc;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.93em;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.3s;
+            z-index: 9999;
+            max-width: 380px;
+        }
+        .alert.show { opacity: 1; transform: translateY(0); }
+        .alert .close-alert {
+            margin-left: auto;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 1.2em;
+        }
+        #security {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #b03a2e, #c0392b);
+            font-family: Arial, sans-serif;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #fff;
+        }
+        #security p {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 768px) {
+            .navbar1 .logo { display: none; }
+            .navbar1 .logo1 { display: block; }
+            .main-content { margin-left: 0; }
+            .sidebar {
+                width: 280px;
+                transform: translateX(-100%);
+                left: 0;
+                top: 64px;
+                position: fixed;
+                z-index: 1500;
+            }
+            .sidebar.expanded-mobile { transform: translateX(0); }
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="security">
+        <p><strong>Access Denied</strong><br />You do not have the necessary permissions to view this page.</p>
+    </div>
+
+    <div id="to_show">
+        <div class="alert" id="alertBox">
+            <i class="fas fa-check-circle" style="color: #28a745"></i>
+            <span id="alertMsg">Welcome To Survey Reports!</span>
+            <span class="close-alert" onclick="closeAlert()">×</span>
+        </div>
+
+        <div class="navbar1">
+            <div class="logo">
+                <img src="https://dev.leadtech.in/files/leadtech.png" id="logo" alt="LeadTech Logo" />
+            </div>
+            <div class="logo1">
+                <img src="https://dev.leadtech.in/files/White.png" id="logo1" alt="LeadTech Logo White" />
+            </div>
+            <div class="toggle-btn" id="toggleButton"><i class="fas fa-bars"></i></div>
+            <div class="user-info" id="userInfo">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName"></span>
+                <span id="userTypeBadge" class="user-type-badge"></span>
+            </div>
+            <div class="logout-btn"><button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+        </div>
+
+        <div class="container1">
+            <div class="sidebar" id="sidebar">
+                <nav>
+                    <ul id="full-menu">
+                        <li id="dashboard-link"><a href="/survey/dashboard-test" data-title="Dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                        <li id="surveys-link"><a href="/survey-project-wise" data-title="Surveys"><i class="fas fa-clipboard-list"></i><span>Surveys</span></a></li>
+                        <li id="create-survey-link"><a href="/new/test/create/survey/create/test" data-title="Create Survey"><i class="fas fa-plus-circle"></i><span>Create Survey</span></a></li>
+                        <li id="response-link"><a href="/survey/responses/new-test" data-title="Response"><i class="fas fa-reply-all"></i><span>Response</span></a></li>
+                        <li id="project-id-link"><a href="/survey/project-id" data-title="Project ID"><i class="fas fa-id-card"></i><span>Project ID</span></a></li>
+                        <li id="users-link"><a href="/survey/users-test" data-title="Users"><i class="fas fa-users"></i><span>Users</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="main-content" id="mainContent">
+                <div class="page-header">
+                    <h2 id="pageTitle">Survey Reports</h2>
+                    <span class="response-count" id="responseCount" style="display: none"></span>
+                </div>
+
+                <!-- FILTER PANEL REMOVED as requested -->
+
+                <div class="analytics-grid" id="analyticsGrid">
+                    <div class="loader-wrap"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HELPER FUNCTION: Safely decode URL-encoded strings
+        // ============================================
+        function decodeIfNeeded(str) {
+            if (!str || typeof str !== 'string') return str;
+            
+            // If string contains %20 or other URL encoded characters, decode it
+            if (str.includes('%')) {
+                try {
+                    return decodeURIComponent(str);
+                } catch (e) {
+                    console.warn('Failed to decode string:', str);
+                    return str;
+                }
+            }
+            return str;
+        }
+
+        // ============================================
+        // COOKIE FUNCTIONS
+        // ============================================
+        function getCookie(name) {
+            const cookieName = name + "=";
+            const cookies = document.cookie.split(';');
+            for(let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) == ' ') cookie = cookie.substring(1);
+                if (cookie.indexOf(cookieName) == 0) {
+                    try { return JSON.parse(cookie.substring(cookieName.length, cookie.length)); }
+                    catch { return cookie.substring(cookieName.length, cookie.length); }
+                }
+            }
+            return null;
+        }
+
+        function getUserData() {
+            return {
+                userType: getCookie('user_type'),
+                email: getCookie('user_email'),
+                fullName: getCookie('full_name'),
+            };
+        }
+
+        // ============================================
+        // PERMISSION MANAGEMENT
+        // ============================================
+        function applyMenuPermissions(userType) {
+            const dashboardLink = document.getElementById('dashboard-link');
+            const surveysLink = document.getElementById('surveys-link');
+            const createSurveyLink = document.getElementById('create-survey-link');
+            const responseLink = document.getElementById('response-link');
+            const projectIdLink = document.getElementById('project-id-link');
+            const usersLink = document.getElementById('users-link');
+
+            console.log('Applying permissions for user type:', userType);
+
+            const userTypeLower = userType ? userType.toLowerCase() : '';
+
+            // Check user types
+            const isSuperAdmin = userTypeLower.includes('super_admin') || 
+                                userTypeLower.includes('super admin') || 
+                                userTypeLower === 'super_admin';
+            
+            const isAuthorized = userTypeLower.includes('authorized') || 
+                                userTypeLower === 'authorized';
+            
+            const isGuest = userTypeLower.includes('guest') || 
+                           userTypeLower.includes('viewer') || 
+                           userTypeLower === 'guest';
+
+            if (isSuperAdmin || isAuthorized) {
+                // Show all menus
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (surveysLink) surveysLink.style.display = 'block';
+                if (createSurveyLink) createSurveyLink.style.display = 'block';
+                if (responseLink) responseLink.style.display = 'block';
+                if (projectIdLink) projectIdLink.style.display = 'block';
+                if (usersLink) usersLink.style.display = 'block';
+                
+                console.log('Full permissions applied');
+            } else if (isGuest) {
+                // Guest: Only show Dashboard, Surveys, Response
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (surveysLink) surveysLink.style.display = 'none';
+                if (createSurveyLink) createSurveyLink.style.display = 'none';
+                if (responseLink) responseLink.style.display = 'block';
+                if (projectIdLink) projectIdLink.style.display = 'none';
+                if (usersLink) usersLink.style.display = 'none';
+                
+                console.log('Guest permissions applied');
+            } else {
+                // Default: Show all menus
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (surveysLink) surveysLink.style.display = 'block';
+                if (createSurveyLink) createSurveyLink.style.display = 'block';
+                if (responseLink) responseLink.style.display = 'block';
+                if (projectIdLink) projectIdLink.style.display = 'block';
+                if (usersLink) usersLink.style.display = 'block';
+                
+                console.log('Default permissions applied');
+            }
+            
+            // Set active menu
+            setActiveMenu();
+        }
+
+        // Set active menu based on current URL
+        function setActiveMenu() {
+            const currentPath = window.location.pathname;
+            const menuItems = document.querySelectorAll('#full-menu li');
+            
+            // Remove active class from all menu items
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            console.log('Setting active menu for path:', currentPath);
+            
+            menuItems.forEach(item => {
+                const link = item.querySelector('a');
+                if (link) {
+                    const href = link.getAttribute('href');
+                    
+                    // For Response page (current page)
+                    if (currentPath.includes('/responses') || currentPath.includes('responses')) {
+                        if (href.includes('/responses') || href.includes('responses')) {
+                            item.classList.add('active');
+                            console.log('Active set on Response link');
+                        }
+                    }
+                    // For Dashboard page
+                    else if (currentPath.includes('/dashboard') || currentPath.includes('dashboard')) {
+                        if (href.includes('/dashboard') || href.includes('dashboard')) {
+                            item.classList.add('active');
+                        }
+                    }
+                    // For Surveys page
+                    else if (currentPath.includes('/survey-project-wise') || currentPath.includes('surveys')) {
+                        if (href.includes('/survey-project-wise') || href.includes('surveys')) {
+                            item.classList.add('active');
+                        }
+                    }
+                    // For Create Survey page
+                    else if (currentPath.includes('/create/survey') || currentPath.includes('create-survey') || currentPath.includes('create')) {
+                        if (href.includes('/create/survey') || href.includes('create-survey') || href.includes('create')) {
+                            item.classList.add('active');
+                        }
+                    }
+                    // For Project ID page
+                    else if (currentPath.includes('/project-id') || currentPath.includes('project')) {
+                        if (href.includes('/project-id') || href.includes('project')) {
+                            item.classList.add('active');
+                        }
+                    }
+                    // For Users page
+                    else if (currentPath.includes('/users') || currentPath.includes('users')) {
+                        if (href.includes('/users') || href.includes('users')) {
+                            item.classList.add('active');
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const API_TOKEN = "405e0af40f3d04a:885b55cc21d37d2";
+        const API_BASE_URL = "https://dev.leadtech.in/api/method/leadtech_survey.leadtech_survey.get_calling_survey_data_api.get_doctype_data";
+
+        // ============================================
+        // APPLICATION STATE
+        // ============================================
+        let surveyData = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        const userData = getUserData();
+        console.log("User Data:", userData);
+
+        if (!userData.userType || !userData.email) {
+            document.getElementById("security").style.display = "flex";
+            document.getElementById("to_show").style.display = "none";
+        } else {
+            document.getElementById("security").style.display = "none";
+            document.getElementById("to_show").style.display = "block";
+            
+            // ===== FIXED: Decode user info in navbar =====
+            const userNameSpan = document.getElementById('userName');
+            const badgeSpan = document.getElementById('userTypeBadge');
+            
+            // Decode user name properly (handles %20 and other encoded characters)
+            if (userNameSpan) {
+                let displayName = userData.fullName || userData.email || 'User';
+                displayName = decodeIfNeeded(displayName);
+                userNameSpan.textContent = displayName;
+            }
+            
+            // Decode user type and format it nicely
+            if (badgeSpan) {
+                let userTypeDisplay = decodeIfNeeded(userData.userType || '');
+                userTypeDisplay = userTypeDisplay.replace(/_/g, ' ').toUpperCase();
+                badgeSpan.textContent = userTypeDisplay;
+            }
+
+            // Apply menu permissions
+            applyMenuPermissions(userData.userType);
+
+            // ============================================
+            // FETCH DOCTYPE FROM URL (doctype_name parameter)
+            // ============================================
+            const urlParams = new URLSearchParams(window.location.search);
+            let doctypeFromUrl = urlParams.get('doctype_name');
+
+            // If no doctype in URL, fallback to a default
+            if (!doctypeFromUrl) {
+                doctypeFromUrl = "Survey_Mandia";
+                console.warn("doctype_name not found in URL, using fallback: Survey_Mandia");
+            }
+
+            const surveyName = doctypeFromUrl;
+            // Decode survey name if it contains encoded characters
+            const decodedSurveyName = decodeIfNeeded(surveyName);
+            document.getElementById("pageTitle").textContent = `Survey Reports: ${decodedSurveyName}`;
+            
+            // Show loader and call API immediately (no filters)
+            loadData(surveyName);
+        }
+
+        // ============================================
+        // DATA LOADING (loader visible)
+        // ============================================
+        async function loadData(survey) {
+            const grid = document.getElementById("analyticsGrid");
+            
+            // Show loader
+            grid.innerHTML = '<div class="loader-wrap"><div class="spinner"></div></div>';
+            
+            try {
+                // Build URL with no filters (all empty)
+                let url = `${API_BASE_URL}?doctype=${encodeURIComponent(survey)}&fields=[]&field_type=&field_value=&sub_field_type=&sub_field_value=&page=1&page_size=1000`;
+                
+                console.log("Fetching:", url);
+                
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Token ${API_TOKEN}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                
+                const data = await response.json();
+                console.log("API Response:", data);
+                
+                surveyData = data.message;
+                
+                if (!surveyData || surveyData.status !== "success") {
+                    throw new Error(surveyData?.message || "API returned error");
+                }
+                
+                // Display cards if data exists
+                if (surveyData.data && surveyData.data.length > 0) {
+                    renderCards(surveyData.data);
+                    document.getElementById("responseCount").textContent = `Total: ${surveyData.total}`;
+                    document.getElementById("responseCount").style.display = "inline-block";
+                } else {
+                    grid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No data found</p></div>';
+                    document.getElementById("responseCount").style.display = "none";
+                }
+                
+            } catch (error) {
+                console.error("Error:", error);
+                grid.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error: ${error.message}</p></div>`;
+            }
+        }
+
+        function renderCards(data) {
+            const grid = document.getElementById("analyticsGrid");
+            grid.innerHTML = "";
+            
+            const fields = surveyData.fields_meta || [];
+            const totalRecords = data.length;
+            
+            fields.forEach(field => {
+                const counts = {};
+                data.forEach(item => {
+                    let val = item[field.fieldname];
+                    if (val === null || val === undefined) val = "N/A";
+                    // Decode any URL-encoded values in the data
+                    if (typeof val === 'string' && val.includes('%')) {
+                        try {
+                            val = decodeURIComponent(val);
+                        } catch (e) {
+                            // Keep original if decoding fails
+                        }
+                    }
+                    counts[val] = (counts[val] || 0) + 1;
+                });
+                
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const totalForField = sorted.reduce((sum, [_, count]) => sum + count, 0);
+                
+                grid.appendChild(createCard(field.label, field.fieldname, sorted, totalForField, totalRecords));
+            });
+        }
+
+        function createCard(label, fieldname, sorted, total, allCount) {
+            const card = document.createElement("div");
+            card.className = "q-card";
+            
+            card.innerHTML = `
+                <div class="q-card-header">
+                    <h3 title="${label}">${label}</h3>
+                    <span class="q-total">${total} answers</span>
+                </div>
+                <div class="q-card-body">
+                    <div class="q-sticky-top">
+                        <select class="answer-select" id="select-${fieldname}">
+                            <option value="">— Select an answer to see count —</option>
+                            ${sorted.map(([val, cnt]) => {
+                                const pct = ((cnt / allCount) * 100).toFixed(1);
+                                // Ensure values are properly displayed (they're already decoded)
+                                return `<option value="${val.replace(/"/g, '&quot;')}" data-count="${cnt}" data-pct="${pct}">${val}</option>`;
+                            }).join('')}
+                        </select>
+                        <div class="count-display" id="cd-${fieldname}">
+                            <div class="count-number" id="cn-${fieldname}">0</div>
+                            <div class="count-label">responses for selected answer</div>
+                            <span class="count-percentage" id="cp-${fieldname}">0%</span>
+                        </div>
+                    </div>
+                    <div class="answers-list">
+                        ${sorted.map(([val, cnt]) => {
+                            const maxCount = sorted.length ? sorted[0][1] : 1;
+                            const barPct = (cnt / maxCount) * 100;
+                            return `
+                                <div class="answer-row">
+                                    <span class="answer-label" title="${val.replace(/"/g, '&quot;')}">${val}</span>
+                                    <div class="answer-bar-wrap"><div class="answer-bar" style="width:${barPct}%"></div></div>
+                                    <span class="answer-count">${cnt}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const select = document.getElementById(`select-${fieldname}`);
+                if (select) {
+                    select.addEventListener("change", function() {
+                        const cd = document.getElementById(`cd-${fieldname}`);
+                        if (!this.value) {
+                            cd.classList.remove("show");
+                            return;
+                        }
+                        const opt = this.options[this.selectedIndex];
+                        document.getElementById(`cn-${fieldname}`).textContent = opt.dataset.count;
+                        document.getElementById(`cp-${fieldname}`).textContent = opt.dataset.pct + "%";
+                        cd.classList.add("show");
+                    });
+                }
+            }, 20);
+            
+            return card;
+        }
+
+        // Sidebar toggle
+        document.getElementById("toggleButton").addEventListener("click", function() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("mainContent");
+            const logo = document.getElementById("logo");
+            const logo1 = document.getElementById("logo1");
+            
+            sidebar.classList.toggle("collapsed");
+            
+            if (sidebar.classList.contains("collapsed")) {
+                mainContent.style.marginLeft = "80px";
+                logo.style.display = "none";
+                logo1.style.display = "block";
+            } else {
+                mainContent.style.marginLeft = "280px";
+                logo.style.display = "block";
+                logo1.style.display = "none";
+            }
+        });
+
+        window.closeAlert = function() {
+            document.getElementById("alertBox").classList.remove("show");
+        };
+
+        window.logout = function() {
+            window.location.href = "https://dev.leadtech.in/survey/login-test";
+        };
+    </script>
+</body>
+</html>

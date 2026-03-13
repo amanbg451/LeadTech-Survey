@@ -1,0 +1,2901 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
+    <title>Institute Dashboard - Spatial Reports</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Leaflet CSS - For Maps -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <style>
+      /* ============================================
+           GLOBAL STYLES - FIXED GAPS
+           ============================================ */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body,
+      html {
+        height: 100%;
+        width: 100%;
+        font-family: "Inter", "Arial", sans-serif;
+        background-color: #f8f9fa;
+        overflow-x: hidden;
+      }
+
+      /* ============================================
+           MODERN NAVBAR STYLES
+           ============================================ */
+      .navbar1 {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 64px;
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 16px;
+        padding: 0 24px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.25);
+      }
+
+      .navbar1 .logo img {
+        height: 42px;
+      }
+
+      .navbar1 .logo1 img {
+        height: 42px;
+        transition: opacity 0.3s ease;
+        display: none;
+        filter: brightness(0) invert(1);
+      }
+
+      .toggle-btn {
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .user-info {
+        width:300px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 6px 16px 6px 12px;
+        border-radius: 40px;
+        margin-left: 8px;
+        font-size: 0.95rem;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .user-info i {
+        font-size: 1.1rem;
+        gap:10px;
+      }
+
+      .user-details {
+        gap:10px;
+        display: flex;
+        flex-direction: row;
+      }
+
+      #userName {
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .user-type-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        display: inline-block;
+        width: fit-content;
+        margin-top: 2px;
+      }
+
+      .logout-btn {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+      }
+
+      .logout-btn button {
+        background: #ffffff;
+        border: none;
+        padding: 8px 22px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #b03a2e;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin: 0;
+      }
+
+      .logout-btn button:hover {
+        background: #fff5f5;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .logout-btn button i {
+        font-size: 1.1rem;
+        color: #b03a2e;
+      }
+
+      .container1 {
+        display: flex;
+        margin-top: 64px;
+        min-height: calc(100vh - 64px);
+      }
+
+      /* ============================================
+           MODERN SIDEBAR STYLES
+           ============================================ */
+      .sidebar {
+        width: 260px;
+        background: #ffffff;
+        color: #1e293b;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        bottom: 0;
+        padding: 20px 0;
+        z-index: 999;
+        transition: all 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+        border-right: 1px solid #e9edf2;
+      }
+
+      /* Custom scrollbar for sidebar */
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .sidebar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+
+      .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #b03a2e;
+      }
+
+      .sidebar nav ul {
+        list-style: none;
+        padding: 0 12px;
+        margin: 0;
+      }
+
+      .sidebar nav ul li {
+        margin: 4px 0;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+
+     .sidebar nav ul li:hover {
+        background: linear-gradient(90deg, rgba(176, 58, 46, 0.1), transparent);
+        transform: translateX(8px);
+        box-shadow: 0 5px 15px rgba(176, 58, 46, 0.15);
+      }
+
+      .sidebar nav ul li:hover a {
+        color: #b03a2e;
+      }
+
+      .sidebar nav ul li:hover i {
+        color: #b03a2e;
+      }
+
+      .sidebar nav ul li.active {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.25);
+      }
+
+      .sidebar nav ul li.active a,
+      .sidebar nav ul li.active i {
+        color: #ffffff;
+      }
+
+      .sidebar nav ul li a {
+        text-decoration: none;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+      }
+
+      .sidebar nav ul li i {
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+        color: #64748b;
+        transition: all 0.2s ease;
+      }
+
+      .sidebar nav ul li span {
+        font-weight: 500;
+        letter-spacing: 0.2px;
+      }
+
+      /* Collapsed state */
+      .sidebar.collapsed {
+        width: 70px;
+      }
+
+      .sidebar.collapsed nav ul li a {
+        padding: 14px 0;
+        justify-content: center;
+      }
+
+      .sidebar.collapsed nav ul li span {
+        display: none;
+      }
+
+      .sidebar.collapsed nav ul li i {
+        font-size: 1.3rem;
+        margin: 0;
+      }
+
+      /* ============================================
+           MAIN CONTENT STYLES
+           ============================================ */
+      .main-content {
+        margin-left: 260px;
+        padding: 20px;
+        width: calc(100% - 260px);
+        transition: margin-left 0.3s ease, width 0.3s ease;
+        min-height: calc(100vh - 64px);
+        background-color: #f8f9fa;
+      }
+
+      .sidebar.collapsed + .main-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+      }
+
+      /* Survey Header */
+      .survey-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+
+      .survey-header h3 {
+        font-size: 1.6em;
+        color: #b03a2e;
+        margin: 0;
+        font-weight: 600;
+      }
+
+      .create-survey-btn {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .create-survey-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.3);
+      }
+
+      /* Filter Panel */
+      .filter-panel {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+      }
+
+      .search-sort-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .search-input {
+        padding: 10px 15px;
+        font-size: 0.95em;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #b03a2e;
+        box-shadow: 0 0 0 3px rgba(176, 58, 46, 0.1);
+      }
+
+      .reset-btn {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.3);
+      }
+
+      .sort-select {
+        padding: 10px 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95em;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .filter-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .filter-btn {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .filter-btn button {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95em;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .filter-btn button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.3);
+      }
+
+      /* Filter Table */
+      .filter-table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .filter-table th {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        letter-spacing: 0.5px;
+      }
+
+      .filter-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .question-select,
+      .operator-select,
+      .response-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background-color: white;
+        font-size: 0.95em;
+      }
+
+      .response-cell input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 0.95em;
+      }
+
+      #close-btn {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      #close-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      #save-btn,
+      #cancel-btn {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      #save-btn:hover,
+      #cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176, 58, 46, 0.3);
+      }
+
+      /* Content Tabs */
+      .content-tab {
+        display: none;
+        width: 100%;
+      }
+
+      .content-tab.active {
+        display: block;
+      }
+
+      /* Analytics Grid */
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+      }
+
+      .box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      }
+
+      .box h2 {
+        color: #b03a2e;
+        font-size: 1.3em;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .controls select {
+        padding: 8px 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background-color: white;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .controls select:hover {
+        border-color: #b03a2e;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 25px;
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Scrollable table with sticky header */
+      .table-container {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-top: 20px;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+      }
+
+      .table-container thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .table-container th {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      .table-container td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .table-container td:first-child {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .table-container td:nth-child(2) {
+        font-weight: bold;
+        color: #b03a2e;
+      }
+
+      .table-container td:nth-child(3) {
+        color: #666;
+      }
+
+      .table-container tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      .table-container tr:hover {
+        background-color: #fff5f5;
+      }
+
+      /* Custom scrollbar */
+      .table-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .table-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      .table-container::-webkit-scrollbar-thumb {
+        background: #b03a2e;
+        border-radius: 4px;
+      }
+
+      .table-container::-webkit-scrollbar-thumb:hover {
+        background: #8b2c22;
+      }
+
+      /* Map Styles */
+      #spatial-report {
+        width: 100%;
+        padding: 20px 0;
+      }
+
+      #map {
+        height: 550px;
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        margin-top: 20px;
+        border: 2px solid white;
+        z-index: 1;
+      }
+
+      .location-message {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 12px;
+        color: #b03a2e;
+        font-size: 1.2em;
+        font-weight: 500;
+        margin: 20px 0;
+        border: 1px solid #ffe0e0;
+      }
+
+      .location-stats {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 5px solid #b71c1c;
+      }
+
+      .location-count {
+        background: #b71c1c;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+      }
+
+      /* Tables for Daily and Summary Reports */
+      .table-responsive {
+        overflow-x: auto;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-top: 20px;
+      }
+
+      #daily-report-table,
+      #summary-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      #daily-report-table th,
+      #summary-table th {
+        background: linear-gradient(135deg, #b03a2e, #c0392b);
+        color: white;
+        padding: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        letter-spacing: 0.5px;
+      }
+
+      #daily-report-table td,
+      #summary-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      #daily-report-table tr:hover,
+      #summary-table tr:hover {
+        background-color: #fff5f5;
+      }
+
+      /* Alert Popup */
+      .alert {
+        width: 450px;
+        padding: 15px 20px;
+        background-color: #fff;
+        color: #b5392d;
+        border: 1px solid #b55249;
+        border-radius: 10px;
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        font-family: Arial, sans-serif;
+        font-size: 1.1em;
+        font-weight: 500;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      .alert.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .alert .checkmark {
+        font-size: 1.3em;
+        margin-right: 15px;
+        color: #4caf50;
+      }
+
+      .alert .closebtn {
+        margin-left: auto;
+        cursor: pointer;
+        font-size: 1.5em;
+        color: #999;
+        transition: color 0.3s ease;
+      }
+
+      .alert .closebtn:hover {
+        color: #b03a2e;
+      }
+
+      /* Loader */
+      #loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #b71c1c;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        z-index: 99999;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* Security Page */
+      #security {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f9;
+        font-family: "Arial", sans-serif;
+        font-size: 1.5rem;
+        text-align: center;
+        color: #d9534f;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        margin: 20px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .analytics-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .main-content {
+          margin-left: 70px;
+          width: calc(100% - 70px);
+        }
+
+        .sidebar:not(.collapsed) {
+          width: 70px;
+        }
+
+        .sidebar:not(.collapsed) nav ul li span {
+          display: none;
+        }
+
+        .search-sort-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar1 .logo img {
+          margin-left: 0;
+        }
+
+        .main-content {
+          margin-left: 0;
+          width: 100%;
+          padding: 15px;
+        }
+
+        .sidebar {
+          left: -260px;
+          transition: left 0.3s ease;
+        }
+
+        .sidebar.mobile-open {
+          left: 0;
+        }
+
+        .search-container {
+          width: 100%;
+        }
+
+        .search-input {
+          flex: 1;
+        }
+
+        .filter-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-btn {
+          justify-content: flex-start;
+        }
+
+        .analytics-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .box {
+          padding: 15px;
+        }
+
+        .chart-container {
+          height: 300px;
+        }
+
+        .table-container {
+          max-height: 250px;
+        }
+
+        #map {
+          height: 400px;
+        }
+
+        .alert {
+          width: 90%;
+          left: 5%;
+          right: 5%;
+        }
+
+        .user-details {
+          display: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .survey-header {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+
+        .survey-header h3 {
+          font-size: 1.3em;
+        }
+
+        .box h2 {
+          font-size: 1.1em;
+        }
+
+        .controls {
+          flex-direction: column;
+        }
+
+        .controls select {
+          width: 100%;
+        }
+
+        #map {
+          height: 350px;
+        }
+      }
+
+      /* Utility Classes */
+      .hidden {
+        display: none !important;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .mt-20 {
+        margin-top: 20px;
+      }
+
+      .mb-20 {
+        margin-bottom: 20px;
+      }
+
+      .container_reports {
+        width: 100%;
+      }
+
+      /* Chart options */
+      .chart-options {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+      }
+
+      .bin-size-selector {
+        padding: 5px 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+
+      .no-data-message {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      /* Add Inter font */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    </style>
+  </head>
+
+  <body>
+    <!-- Loader -->
+    <div id="loader"></div>
+
+    <!-- Security Access Denied -->
+    <div id="security">
+      <p style="margin: 0; padding: 20px; font-weight: bold">
+        <strong>Access Denied</strong><br />
+        You do not have the necessary permissions to view this page. Please
+        contact the administrator if you believe this is an error.
+      </p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="to_show" style="display: none">
+      <!-- Alert Popup -->
+      <div class="alert" id="copyAlert">
+        <span class="checkmark">✔</span>
+        <span id="alertMessage">Welcome To Dashboard!</span>
+        <span class="closebtn" onclick="closeAlert()">×</span>
+      </div>
+
+      <!-- Navbar -->
+      <div class="navbar1">
+        <div class="logo">
+          <img src="https://dev.leadtech.in/files/leadtech.png" alt="LeadTech Logo" id="logo" />
+        </div>
+        <div class="logo1">
+          <img src="https://dev.leadtech.in/files/White.png" alt="LeadTech Logo" id="logo1" />
+        </div>
+        <div class="toggle-btn" id="toggleButton"><i class="fas fa-bars"></i></div>
+        
+        <!-- User info -->
+        <div class="user-info" id="userInfo">
+          <i class="fas fa-user-circle"></i>
+          <div class="user-details">
+            <span id="userName"></span>
+            <span id="userTypeBadge" class="user-type-badge"></span>
+          </div>
+        </div>
+
+        <!-- Logout button -->
+        <div class="logout-btn">
+          <button onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Container -->
+      <div class="container1">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+          <nav>
+            <ul id="full-menu">
+              <li id="dashboard-link">
+                <a href="https://dev.leadtech.in/survey/dashboard-test">
+                  <i class="fas fa-tachometer-alt"></i>
+                  <span>Dashboard</span>
+                </a>
+              </li>
+              <li id="surveys-link">
+                <a href="https://dev.leadtech.in/survey-project-wise">
+                  <i class="fas fa-clipboard-list"></i>
+                  <span>Surveys</span>
+                </a>
+              </li>
+              <li id="create-survey-link">
+                <a href="https://dev.leadtech.in/new/test/create/survey/create/test">
+                  <i class="fas fa-plus-circle"></i>
+                  <span>Create Survey</span>
+                </a>
+              </li>
+              <li id="response-link">
+                <a href="https://dev.leadtech.in/survey/responses/new-test">
+                  <i class="fas fa-reply-all"></i>
+                  <span>Response</span>
+                </a>
+              </li>
+              <li id="project-id-link">
+                <a href="https://dev.leadtech.in/survey/project-id">
+                  <i class="fas fa-id-card"></i>
+                  <span>Project ID</span>
+                </a>
+              </li>
+              <li id="users-link">
+                <a href="https://dev.leadtech.in/survey/users-test">
+                  <i class="fas fa-users"></i>
+                  <span>Users</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content" id="main-content">
+          <!-- Survey Header -->
+          <div class="survey-header">
+            <h3 id="anofield">Survey Reports:</h3>
+            <button
+              class="create-survey-btn"
+              onclick="window.location.href = 'https://dev.leadtech.in/survey/responses/new-test'"
+            >
+              Response
+            </button>
+          </div>
+
+          <!-- Filter Panel -->
+          <div class="filter-panel">
+            <div class="search-sort-section">
+              <div class="search-container">
+                <input type="date" id="fromDate" class="search-input" />
+                <input type="date" id="toDate" class="search-input" />
+                <button class="reset-btn" onclick="applyFilters()">
+                  Apply Filters
+                </button>
+                <button
+                  class="reset-btn"
+                  id="resetButton"
+                  onclick="resetFilters()"
+                >
+                  Reset All
+                </button>
+              </div>
+              <div class="sort-container">
+                <select
+                  id="sort"
+                  class="sort-select"
+                  onchange="handleTabSelection()"
+                >
+                  <option value="analytics">📊 Analytics</option>
+                  <option value="daily-report">📅 Daily Report</option>
+                  <option value="summary">📋 Summary</option>
+                  <option value="spatial-report">🗺️ Spatial Report</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-section">
+              <div>
+                <select
+                  onchange="handleUserChange(this)"
+                  id="user_filter_options"
+                  class="search-input"
+                >
+                  <option value="">👤 Select User</option>
+                </select>
+              </div>
+              <div class="filter-btn">
+                <button id="add-btn" onclick="addFilter()">
+                  <span>+</span> Advanced Filter
+                </button>
+                <span
+                  id="show-hide-icon"
+                  style="display: none; cursor: pointer"
+                  onclick="toggleTable()"
+                  >👁️ Show Filters</span
+                >
+              </div>
+            </div>
+
+            <!-- Advanced Filter Table -->
+            <div>
+              <table
+                id="filter-table"
+                class="filter-table"
+                style="display: none"
+              >
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Operator</th>
+                    <th>Response</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="filter-body"></tbody>
+              </table>
+              <div class="action-buttons" style="display: none">
+                <button id="save-btn" onclick="saveData()">
+                  Apply Filters
+                </button>
+                <button id="cancel-btn" onclick="cancel()">Hide</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reports Container -->
+          <div class="container_reports">
+            <!-- Analytics Tab -->
+            <div id="analytics" class="content-tab active">
+              <h2>📊 Analytics Dashboard</h2>
+              <div class="analytics-grid" id="analytics-container">
+                <p class="text-center">Loading analytics data...</p>
+              </div>
+            </div>
+
+            <!-- Daily Report Tab -->
+            <div id="daily-report" class="content-tab">
+              <h2>📅 Daily Report</h2>
+              <div class="table-responsive">
+                <table id="daily-report-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Response Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="2" class="text-center">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Summary Tab -->
+            <div id="summary" class="content-tab">
+              <h2>📋 Summary Report</h2>
+              <div class="table-responsive">
+                <table id="summary-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>User</th>
+                      <th>Response Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="3" class="text-center">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Spatial Report Tab - MAP -->
+            <div id="spatial-report" class="content-tab">
+              <h2>🗺️ Spatial Report - Location Map</h2>
+              <div
+                id="location_not_found"
+                class="location-message"
+                style="display: none"
+              ></div>
+              <div id="map"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <!-- Main Application Script -->
+    <script>
+      // ============================================
+      // HELPER FUNCTION: Safely decode URL-encoded strings
+      // ============================================
+      function decodeIfNeeded(str) {
+        if (!str || typeof str !== 'string') return str;
+        
+        // If string contains %20 or other URL encoded characters, decode it
+        if (str.includes('%')) {
+          try {
+            return decodeURIComponent(str);
+          } catch (e) {
+            console.warn('Failed to decode string:', str);
+            return str;
+          }
+        }
+        return str;
+      }
+
+      // ============================================
+      // COOKIE FUNCTIONS - UPDATED VERSION
+      // ============================================
+      function getCookie(name) {
+        const cookieName = name + "=";
+        const cookies = document.cookie.split(';');
+        
+        for(let i = 0; i < cookies.length; i++) {
+          let cookie = cookies[i].trim(); // Use trim() instead of while loop
+          
+          if (cookie.indexOf(cookieName) === 0) {
+            const cookieValue = cookie.substring(cookieName.length, cookie.length);
+            
+            // Try to parse as JSON first
+            try {
+              return JSON.parse(cookieValue);
+            } catch (e) {
+              // If not JSON, return the raw value (remove any URL encoding)
+              try {
+                return decodeURIComponent(cookieValue);
+              } catch (e) {
+                return cookieValue;
+              }
+            }
+          }
+        }
+        
+        return null;
+      }
+
+      function getUserData() {
+        return {
+          userType: getCookie('user_type'),
+          email: getCookie('user_email'),
+          fullName: getCookie('full_name'),
+        };
+      }
+
+      // Add debug function
+      function debugAuth() {
+        console.log('=== AUTH DEBUG ===');
+        console.log('All cookies:', document.cookie);
+        
+        const userType = getCookie('user_type');
+        const userEmail = getCookie('user_email');
+        const fullName = getCookie('full_name');
+        
+        console.log('user_type:', userType);
+        console.log('user_email:', userEmail);
+        console.log('full_name:', fullName);
+        console.log('=== END AUTH DEBUG ===');
+        
+        return { userType, userEmail, fullName };
+      }
+
+      // ============================================
+      // PERMISSION MANAGEMENT
+      // ============================================
+      function applyMenuPermissions(userType) {
+        const dashboardLink = document.getElementById('dashboard-link');
+        const surveysLink = document.getElementById('surveys-link');
+        const createSurveyLink = document.getElementById('create-survey-link');
+        const responseLink = document.getElementById('response-link');
+        const projectIdLink = document.getElementById('project-id-link');
+        const usersLink = document.getElementById('users-link');
+
+        console.log('Applying permissions for user type:', userType);
+
+        const userTypeLower = userType ? String(userType).toLowerCase() : '';
+
+        // Check user types
+        const isSuperAdmin = userTypeLower.includes('super_admin') || 
+                            userTypeLower.includes('super admin') || 
+                            userTypeLower === 'super_admin' ||
+                            userTypeLower.includes('super');
+        
+        const isAuthorized = userTypeLower.includes('authorized') || 
+                            userTypeLower === 'authorized' ||
+                            userTypeLower.includes('admin');
+        
+        const isGuest = userTypeLower.includes('guest') || 
+                       userTypeLower.includes('viewer') || 
+                       userTypeLower === 'guest';
+
+        if (isSuperAdmin || isAuthorized) {
+          // Show all menus
+          if (dashboardLink) dashboardLink.style.display = 'block';
+          if (surveysLink) surveysLink.style.display = 'block';
+          if (createSurveyLink) createSurveyLink.style.display = 'block';
+          if (responseLink) responseLink.style.display = 'block';
+          if (projectIdLink) projectIdLink.style.display = 'block';
+          if (usersLink) usersLink.style.display = 'block';
+          
+          console.log('Full permissions applied');
+        } else if (isGuest) {
+          // Guest: Only show Dashboard, Surveys, Response
+          if (dashboardLink) dashboardLink.style.display = 'block';
+          if (surveysLink) surveysLink.style.display = 'none';
+          if (createSurveyLink) createSurveyLink.style.display = 'none';
+          if (responseLink) responseLink.style.display = 'block';
+          if (projectIdLink) projectIdLink.style.display = 'none';
+          if (usersLink) usersLink.style.display = 'none';
+          
+          console.log('Guest permissions applied');
+        } else {
+          // Default: Show all menus
+          if (dashboardLink) dashboardLink.style.display = 'block';
+          if (surveysLink) surveysLink.style.display = 'block';
+          if (createSurveyLink) createSurveyLink.style.display = 'block';
+          if (responseLink) responseLink.style.display = 'block';
+          if (projectIdLink) projectIdLink.style.display = 'block';
+          if (usersLink) usersLink.style.display = 'block';
+          
+          console.log('Default permissions applied');
+        }
+        
+        // Set active menu
+        setActiveMenu();
+      }
+
+      // ===== FIXED: Set active menu based on current URL =====
+      function setActiveMenu() {
+        const currentPath = window.location.pathname;
+        const currentUrl = window.location.href;
+        const menuItems = document.querySelectorAll('#full-menu li');
+        
+        // Remove active class from all menu items
+        menuItems.forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        console.log('Setting active menu for path:', currentPath);
+        console.log('Current URL:', currentUrl);
+        
+        // Check each menu item's href to see if it matches current URL
+        menuItems.forEach(item => {
+          const link = item.querySelector('a');
+          if (link) {
+            const href = link.getAttribute('href');
+            
+            // For Dashboard page
+            if (currentPath.includes('dashboard') && href.includes('dashboard')) {
+              item.classList.add('active');
+            }
+            // For Surveys page
+            else if (currentPath.includes('surveys') && href.includes('surveys')) {
+              item.classList.add('active');
+            }
+            // For Create Survey page
+            else if (currentPath.includes('create') && href.includes('create')) {
+              item.classList.add('active');
+            }
+            // ===== FIXED: Better detection for Response page =====
+            else if ((currentPath.includes('responses') || currentPath.includes('response') || currentUrl.includes('responses') || currentUrl.includes('response')) &&
+                     (href.includes('responses') || href.includes('response'))) {
+              item.classList.add('active');
+              console.log('✅ Response menu activated');
+            }
+            // For Project ID page
+            else if (currentPath.includes('project') && href.includes('project')) {
+              item.classList.add('active');
+            }
+            // For Users page
+            else if (currentPath.includes('users') && href.includes('users')) {
+              item.classList.add('active');
+            }
+          }
+        });
+        
+        // If no menu item is active, check if we're on a spatial reports page
+        const activeExists = Array.from(menuItems).some(item => item.classList.contains('active'));
+        if (!activeExists && currentPath.includes('spatial')) {
+          document.getElementById('response-link')?.classList.add('active');
+        }
+      }
+
+      // ============================================
+      // LOGOUT FUNCTION
+      // ============================================
+      async function logout() {
+        try {
+          const response = await fetch(`${window.location.origin}/api/method/logout`, { 
+            method: 'GET' 
+          });
+          
+          if (response.ok) {
+            document.cookie.split(";").forEach(function(c) { 
+              document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            
+            const cookiesToClear = [
+              'user_email', 'user_type', 'user_login_data', 'user_projects',
+              'full_name', 'user_id', 'home_page', 'client_id', 'user_clients',
+              'permission_data', 'sid', 'system_user', 'user_image'
+            ];
+            
+            cookiesToClear.forEach(cookieName => {
+              document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+              document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
+            });
+            
+            console.log('%c🚪 Logout successful - All cookies cleared', 'color: #4CAF50; font-weight: bold;');
+          } else {
+            console.error('Logout failed on server');
+          }
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
+          window.location.href = `${window.location.origin}/survey/login-test`;
+        }
+      }
+
+      // ============================================
+      // SIDEBAR TOGGLE
+      // ============================================
+      document.getElementById('toggleButton').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const logo = document.getElementById('logo');
+        const logo1 = document.getElementById('logo1');
+        const mainContent = document.getElementById('main-content');
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+          sidebar.classList.toggle('mobile-open');
+        } else {
+          sidebar.classList.toggle('collapsed');
+          
+          if (sidebar.classList.contains('collapsed')) {
+            logo.style.display = 'none';
+            logo1.style.display = 'block';
+            mainContent.style.marginLeft = '70px';
+            mainContent.style.width = 'calc(100% - 70px)';
+          } else {
+            logo.style.display = 'block';
+            logo1.style.display = 'none';
+            mainContent.style.marginLeft = '260px';
+            mainContent.style.width = 'calc(100% - 260px)';
+          }
+        }
+      });
+
+      // ============================================
+      // AUTHENTICATION & INITIALIZATION - UPDATED
+      // ============================================
+      const API_BASE = window.location.origin;
+      console.log("API Base URL:", API_BASE);
+
+      (function () {
+        // Run debug first
+        const debug = debugAuth();
+        
+        const userData = getUserData();
+        const userType = userData.userType;
+        const userEmail = userData.email;
+
+        console.log("✅ User Data from cookies =>", { 
+          userType, 
+          email: userEmail,
+          fullName: userData.fullName
+        });
+
+        // More flexible authorization check
+        function isUserAuthorized(type) {
+          if (!type) return false;
+          
+          const typeLower = String(type).toLowerCase();
+          
+          // Check for various formats
+          return typeLower === 'super_admin' || 
+                 typeLower === 'super admin' || 
+                 typeLower === 'superadmin' ||
+                 typeLower === 'authorized' || 
+                 typeLower === 'admin' ||
+                 typeLower === 'guest' ||
+                 typeLower === 'viewer' ||
+                 typeLower.includes('super');
+        }
+
+        // Check if user is authorized
+        const isAuthorized = isUserAuthorized(userType);
+
+        if (!isAuthorized || !userEmail) {
+          console.log('❌ Authorization failed:', { userType, userEmail, isAuthorized });
+          
+          document.getElementById("security").style.display = "flex";
+          document.getElementById("to_show").style.display = "none";
+
+          setTimeout(function () {
+            alert("⚠️ Unauthorized access! Redirecting to login page.");
+            window.location.href = `${window.location.origin}/survey/login-test`;
+          }, 2000);
+        } else {
+          console.log('✅ Authorization successful');
+          document.getElementById("security").style.display = "none";
+          document.getElementById("to_show").style.display = "block";
+          
+          // Decode user info in navbar
+          const userNameSpan = document.getElementById('userName');
+          const badgeSpan = document.getElementById('userTypeBadge');
+          
+          // Decode user name properly
+          if (userNameSpan) {
+            let displayName = userData.fullName || userData.email || 'User';
+            try {
+              displayName = decodeURIComponent(displayName);
+            } catch (e) {
+              // If decoding fails, use as is
+            }
+            userNameSpan.textContent = displayName;
+          }
+          
+          // Decode user type and format it
+          if (badgeSpan) {
+            let userTypeDisplay = userType || '';
+            try {
+              userTypeDisplay = decodeURIComponent(userTypeDisplay);
+            } catch (e) {
+              // If decoding fails, use as is
+            }
+            userTypeDisplay = userTypeDisplay.replace(/_/g, ' ').toUpperCase();
+            badgeSpan.textContent = userTypeDisplay;
+          }
+          
+          // Apply menu permissions
+          applyMenuPermissions(userType);
+          
+          // Initialize app
+          setTimeout(initApp, 100);
+        }
+      })();
+
+      // ============================================
+      // GLOBAL VARIABLES
+      // ============================================
+      let global_data = [];
+      let filtered_data = [];
+      let selectedUser = "";
+      let filterData = [];
+      let optionsHTML = "";
+      let chartInstances = {};
+      let mapInstance = null;
+      let binSizeSelector = null;
+
+      // ============================================
+      // APP INITIALIZATION
+      // ============================================
+      function initApp() {
+        console.log("🚀 Initializing Application...");
+
+        const survey = new URLSearchParams(window.location.search).get(
+          "survey",
+        );
+        if (!survey) {
+          console.error("❌ Survey parameter is missing in the URL.");
+          showAlert("❌ Survey parameter missing!", 4000);
+          return;
+        }
+
+        // Decode survey name in header
+        const decodedSurvey = decodeIfNeeded(survey);
+        document.getElementById("anofield").textContent =
+          `Survey Reports: ${decodedSurvey}`;
+
+        // Set default dates (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+        document.getElementById("fromDate").value = thirtyDaysAgo
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("toDate").value = today
+          .toISOString()
+          .split("T")[0];
+
+        // Initialize with analytics tab
+        showTab("analytics");
+
+        // Fetch filters and load data
+        fetchFilters(survey);
+
+        showAlert("✅ Dashboard loaded successfully!", 3000);
+      }
+
+      // ============================================
+      // TAB MANAGEMENT
+      // ============================================
+      function showTab(tabId) {
+        // Hide all tabs
+        document.querySelectorAll(".content-tab").forEach((tab) => {
+          tab.classList.remove("active");
+          tab.style.display = "none";
+        });
+
+        // Show selected tab
+        const selectedTab = document.getElementById(tabId);
+        if (selectedTab) {
+          selectedTab.classList.add("active");
+          selectedTab.style.display = "block";
+        }
+
+        // Load tab content
+        switch (tabId) {
+          case "analytics":
+            loadAnalytics();
+            break;
+          case "daily-report":
+            loadDailyReport();
+            break;
+          case "summary":
+            loadSummary();
+            break;
+          case "spatial-report":
+            loadSpatialReport();
+            break;
+        }
+      }
+
+      function handleTabSelection() {
+        const selectedTab = document.getElementById("sort").value;
+        showTab(selectedTab);
+      }
+
+      // ============================================
+      // HELPER FUNCTION: Group numeric data into bins
+      // ============================================
+      function groupNumericData(values, binSize = 5) {
+        if (!values || values.length === 0) return {};
+
+        // Filter out non-numeric values
+        const numericValues = values
+          .map((v) => parseFloat(v))
+          .filter((v) => !isNaN(v) && v !== null);
+
+        if (numericValues.length === 0) return {};
+
+        const min = Math.min(...numericValues);
+        const max = Math.max(...numericValues);
+
+        // Create bins
+        const bins = {};
+        const binStart = Math.floor(min / binSize) * binSize;
+        const binEnd = Math.ceil(max / binSize) * binSize;
+
+        for (let i = binStart; i <= binEnd; i += binSize) {
+          const binLabel = `${i}-${i + binSize}`;
+          bins[binLabel] = 0;
+        }
+
+        // Count values in bins
+        numericValues.forEach((value) => {
+          const binIndex = Math.floor(value / binSize) * binSize;
+          const binLabel = `${binIndex}-${binIndex + binSize}`;
+          if (bins.hasOwnProperty(binLabel)) {
+            bins[binLabel]++;
+          } else {
+            // Handle edge case
+            const nearestBin = Math.floor(value / binSize) * binSize;
+            const nearestLabel = `${nearestBin}-${nearestBin + binSize}`;
+            bins[nearestLabel] = (bins[nearestLabel] || 0) + 1;
+          }
+        });
+
+        return bins;
+      }
+
+      // ============================================
+      // ANALYTICS FUNCTIONS
+      // ============================================
+      async function loadAnalytics(
+        fromDate = "",
+        toDate = "",
+        user = "",
+        preserveUser = true,
+      ) {
+        showLoader();
+        const analyticsContainer = document.getElementById(
+          "analytics-container",
+        );
+        analyticsContainer.innerHTML =
+          '<p class="text-center">📊 Loading analytics data...</p>';
+
+        const survey = new URLSearchParams(window.location.search).get(
+          "survey",
+        );
+
+        if (!survey) {
+          hideLoader();
+          analyticsContainer.innerHTML =
+            '<p class="text-center" style="color: #b03a2e;">❌ Survey parameter missing!</p>';
+          return;
+        }
+
+        try {
+          // Get filters from table
+          const filters = Array.from(
+            document.querySelectorAll("#filter-body tr"),
+          );
+          const filterArray = [];
+
+          filters.forEach((row) => {
+            const questionSelect = row.querySelector(".question-select");
+            const operatorSelect = row.querySelector(".operator-select");
+            const responseInput = row.querySelector(
+              ".response-select, .response-input",
+            );
+
+            if (
+              questionSelect &&
+              operatorSelect &&
+              responseInput &&
+              questionSelect.value
+            ) {
+              filterArray.push({
+                key: questionSelect.value,
+                operator: operatorSelect.value,
+                value: responseInput.value,
+              });
+            }
+          });
+
+          // Fetch data from API
+          const response = await fetch(
+            `${API_BASE}/api/method/leadtech_survey.leadtech_survey.survey_report_test.get_report_test`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: "Token 405e0af40f3d04a:885b55cc21d37d2",
+                "Content-Type": "application/json",
+                "X-Frappe-CSRF-Token": window.frappe?.csrf_token || "",
+              },
+              body: JSON.stringify({
+                doctype_name: survey,
+                filters: filterArray,
+              }),
+            },
+          );
+
+          let data = await response.json();
+          let responses = data.message?.filtered_key_values || [];
+
+          // Apply date and user filters
+          const fromDateObj = fromDate ? new Date(fromDate) : null;
+          const toDateObj = toDate ? new Date(toDate) : null;
+
+          if (fromDate || toDate || user) {
+            responses = responses.filter((item) => {
+              const itemDate = new Date(item.creation?.split(" ")[0] || "");
+              const matchesUser = !user || item.User === user;
+              const matchesDate =
+                (!fromDateObj || itemDate >= fromDateObj) &&
+                (!toDateObj || itemDate <= toDateObj);
+              return matchesUser && matchesDate;
+            });
+          }
+
+          // Store in global variables
+          global_data = responses;
+          filtered_data = responses;
+
+          // Update header with count (survey name already decoded)
+          document.getElementById("anofield").innerHTML =
+            `Survey Reports: ${decodeIfNeeded(survey)} <span style="font-size: 0.7em; background: #b03a2e; color: white; padding: 5px 15px; border-radius: 20px; margin-left: 15px;">Total: ${responses.length || 0}</span>`;
+
+          if (!responses.length) {
+            analyticsContainer.innerHTML =
+              '<p class="text-center" style="color: #666; padding: 40px;">📭 No response data available for the selected filters</p>';
+            hideLoader();
+            return;
+          }
+
+          // Get unique users for filter dropdown
+          let uniqueUsers = [
+            ...new Set(
+              responses
+                .map((item) => item.User)
+                .filter(
+                  (user) =>
+                    user && typeof user === "string" && user.trim() !== "",
+                ),
+            ),
+          ].sort((a, b) => a.localeCompare(b));
+
+          // Update user filter dropdown
+          let previousSelectedUser = preserveUser
+            ? document.querySelector("#user_filter_options").value
+            : "";
+          const userSelect = document.getElementById("user_filter_options");
+          userSelect.innerHTML = '<option value="">👤 All Users</option>';
+
+          uniqueUsers.forEach((user) => {
+            const option = document.createElement("option");
+            option.value = user;
+            option.textContent = decodeIfNeeded(user); // Decode user names in dropdown
+            userSelect.appendChild(option);
+          });
+
+          if (
+            preserveUser &&
+            previousSelectedUser &&
+            uniqueUsers.includes(previousSelectedUser)
+          ) {
+            userSelect.value = previousSelectedUser;
+            selectedUser = previousSelectedUser;
+          }
+
+          // Process data for charts
+          const totalResponses = responses.length;
+          const excludedKeys = [
+            "name",
+            "creation",
+            "modified",
+            "modified_by",
+            "owner",
+            "docstatus",
+            "idx",
+            "_user_tags",
+            "_comments",
+            "_assign",
+            "_liked_by",
+            "_seen",
+            "Location",
+            "Geo Location",
+            "User",
+          ];
+
+          const keys = Object.keys(responses[0] || {}).filter(
+            (key) => !excludedKeys.includes(key),
+          );
+
+          if (!keys.length) {
+            analyticsContainer.innerHTML =
+              '<p class="text-center" style="color: #666; padding: 40px;">📊 No analyzable data fields found</p>';
+            hideLoader();
+            return;
+          }
+
+          // Clear and rebuild analytics grid
+          analyticsContainer.innerHTML = "";
+          analyticsContainer.classList.add("analytics-grid");
+
+          keys.forEach((key, index) => {
+            const canvasId = `chart-${key}-${index}`;
+            const box = createAnalyticsBox(key, index, canvasId);
+            analyticsContainer.appendChild(box);
+
+            // Get values for this key
+            const values = responses.map((item) => item[key]).filter(v => v && v !== "Select Type" && v !== "Radio Type" && v !== "Check Type");
+            
+            // Check if this is numeric data (like age)
+            const numericValues = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+            const isNumeric = numericValues.length > 0 && numericValues.length === values.filter(v => v !== "N/A").length;
+            
+            let labels, dataValues;
+            
+            if (isNumeric && numericValues.length > 5) {
+              // Group numeric data into bins for better visualization
+              const binSize = key.toLowerCase().includes("age") ? 5 : 10; // Age: bin size 5, others: 10
+              const binnedData = groupNumericData(numericValues, binSize);
+              labels = Object.keys(binnedData);
+              dataValues = Object.values(binnedData);
+            } else {
+              // Handle categorical data
+              const valueCounts = {};
+              values.forEach((value) => {
+                if (!value || value === "Select Type" || value === "Radio Type" || value === "Check Type") {
+                  value = "N/A";
+                }
+                valueCounts[value] = (valueCounts[value] || 0) + 1;
+              });
+              
+              labels = Object.keys(valueCounts);
+              dataValues = Object.values(valueCounts);
+            }
+
+            // Populate table
+            const tableBody = document.getElementById(
+              `table-body-${key}-${index}`,
+            );
+            if (tableBody) {
+              tableBody.innerHTML = "";
+              labels.forEach((label, i) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerHTML = label;
+                row.insertCell(1).innerHTML =
+                  `<strong>${dataValues[i]}</strong>`;
+                row.insertCell(2).innerHTML =
+                  ((dataValues[i] / totalResponses) * 100).toFixed(1) + "%";
+              });
+            }
+
+            // Create chart with appropriate options for numeric data
+            createChart(canvasId, key, labels, dataValues, isNumeric);
+          });
+
+          hideLoader();
+          showAlert(`✅ Analytics loaded: ${responses.length} responses`, 3000);
+        } catch (error) {
+          console.error("❌ Error loading analytics:", error);
+          hideLoader();
+          document.getElementById("analytics-container").innerHTML =
+            '<p class="text-center" style="color: #b03a2e; padding: 40px;">❌ Error loading analytics. Please try again.</p>';
+          showAlert("❌ Failed to load analytics", 3000);
+        }
+      }
+
+      function createAnalyticsBox(key, index, canvasId) {
+        const box = document.createElement("div");
+        box.className = "box";
+
+        const header = document.createElement("h2");
+        header.textContent = key;
+
+        const controls = document.createElement("div");
+        controls.className = "controls";
+
+        const chartTypeSelect = document.createElement("select");
+        chartTypeSelect.id = `chart-type-${key}-${index}`;
+        chartTypeSelect.innerHTML = `
+                <option value="bar">📊 Bar Chart</option>
+                <option value="line">📈 Line Chart</option>
+                <option value="pie">🥧 Pie Chart</option>
+                <option value="doughnut">🍩 Doughnut Chart</option>
+            `;
+
+        const exportSelect = document.createElement("select");
+        exportSelect.id = `export-type-${key}-${index}`;
+        exportSelect.innerHTML = `
+                <option value="">💾 Export</option>
+                <option value="image">🖼️ Export as Image</option>
+                <option value="excel">📑 Export as Excel</option>
+            `;
+
+        exportSelect.addEventListener("change", (e) =>
+          handleExport(e, key, index, canvasId),
+        );
+        chartTypeSelect.addEventListener("change", () =>
+          updateChartType(canvasId, key, index, chartTypeSelect.value),
+        );
+
+        controls.appendChild(chartTypeSelect);
+        controls.appendChild(exportSelect);
+
+        const chartContainer = document.createElement("div");
+        chartContainer.className = "chart-container";
+
+        const canvas = document.createElement("canvas");
+        canvas.id = canvasId;
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        chartContainer.appendChild(canvas);
+
+        // FIXED: Scrollable table container with sticky header
+        const tableContainer = document.createElement("div");
+        tableContainer.className = "table-container";
+
+        const table = document.createElement("table");
+        table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body-${key}-${index}"></tbody>
+            `;
+        tableContainer.appendChild(table);
+
+        box.appendChild(header);
+        box.appendChild(controls);
+        box.appendChild(chartContainer);
+        box.appendChild(tableContainer);
+
+        return box;
+      }
+
+      function createChart(canvasId, label, labels, data, isNumeric = false) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+
+        // Destroy existing chart
+        if (chartInstances[canvasId]) {
+          chartInstances[canvasId].destroy();
+        }
+
+        // Generate colors
+        const background = [];
+        const border = [];
+        for (let i = 0; i < labels.length; i++) {
+          const hue = ((i * 360) / Math.max(labels.length, 1)) % 360;
+          background.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+          border.push(`hsla(${hue}, 70%, 50%, 1)`);
+        }
+
+        // Chart options based on data type
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: "top",
+              labels: {
+                boxWidth: 12,
+                padding: 10,
+                font: {
+                  size: 11
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: "rgba(0,0,0,0.8)",
+              titleColor: "#fff",
+              bodyColor: "#fff",
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(0,0,0,0.05)",
+              },
+              ticks: {
+                stepSize: 1,
+                callback: function(value) {
+                  if (Number.isInteger(value)) return value;
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+              },
+              ticks: {
+                maxRotation: isNumeric ? 45 : 90,
+                minRotation: isNumeric ? 30 : 45,
+                font: {
+                  size: isNumeric ? 11 : 10,
+                },
+                maxTicksLimit: isNumeric ? 20 : 15,
+              },
+            },
+          },
+        };
+
+        // For numeric data with many bins, adjust options
+        if (isNumeric && labels.length > 15) {
+          options.scales.x.ticks.maxTicksLimit = 12;
+          options.scales.x.ticks.maxRotation = 30;
+          options.scales.x.ticks.autoSkip = true;
+          options.scales.x.ticks.autoSkipPadding = 15;
+        }
+
+        chartInstances[canvasId] = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: `${label} Distribution`,
+                data: data,
+                backgroundColor: background,
+                borderColor: border,
+                borderWidth: 2,
+                borderRadius: 5,
+                barPercentage: 0.8,
+                categoryPercentage: 0.9,
+              },
+            ],
+          },
+          options: options,
+        });
+      }
+
+      function updateChartType(canvasId, label, index, type) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        const tableBody = document.getElementById(
+          `table-body-${label}-${index}`,
+        );
+        if (!tableBody) return;
+
+        const rows = tableBody.rows;
+        const labels = [];
+        const data = [];
+
+        for (let i = 0; i < rows.length; i++) {
+          labels.push(rows[i].cells[0].innerHTML);
+          data.push(
+            parseInt(rows[i].cells[1].innerHTML.replace(/<[^>]*>/g, "")),
+          );
+        }
+
+        const ctx = canvas.getContext("2d");
+
+        if (chartInstances[canvasId]) {
+          chartInstances[canvasId].destroy();
+        }
+
+        // Generate colors
+        const background = [];
+        const border = [];
+        for (let i = 0; i < labels.length; i++) {
+          const hue = ((i * 360) / Math.max(labels.length, 1)) % 360;
+          background.push(`hsla(${hue}, 70%, 60%, 0.7)`);
+          border.push(`hsla(${hue}, 70%, 50%, 1)`);
+        }
+
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: type === "pie" || type === "doughnut",
+              position: "right",
+            },
+          },
+        };
+
+        // For bar/line charts with many labels
+        if ((type === "bar" || type === "line") && labels.length > 10) {
+          options.scales = {
+            y: {
+              beginAtZero: true,
+            },
+            x: {
+              ticks: {
+                maxRotation: 45,
+                minRotation: 30,
+                font: {
+                  size: 9,
+                },
+                autoSkip: true,
+                maxTicksLimit: 15,
+              },
+            },
+          };
+        }
+
+        chartInstances[canvasId] = new Chart(ctx, {
+          type: type,
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: `${label} Distribution`,
+                data: data,
+                backgroundColor: background,
+                borderColor: border,
+                borderWidth: 2,
+                borderRadius: type === "bar" ? 5 : 0,
+              },
+            ],
+          },
+          options: options,
+        });
+      }
+
+      function handleExport(event, key, index, canvasId) {
+        const exportType = event.target.value;
+
+        if (exportType === "image") {
+          const canvas = document.getElementById(canvasId);
+          const link = document.createElement("a");
+          link.download = `${key}-chart.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          showAlert("✅ Chart exported as image", 2000);
+        } else if (exportType === "excel") {
+          const table = document
+            .getElementById(`table-body-${key}-${index}`)
+            .closest("table");
+          const wb = XLSX.utils.book_new();
+          const ws = XLSX.utils.table_to_sheet(table);
+          XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+          XLSX.writeFile(wb, `${key}-data.xlsx`);
+          showAlert("✅ Data exported as Excel", 2000);
+        }
+
+        event.target.value = "";
+      }
+
+      // ============================================
+      // SPATIAL REPORT - LEAFLET MAP
+      // ============================================
+      function loadSpatialReport() {
+        console.log("🗺️ Loading Spatial Report...");
+
+        const mapContainer = document.getElementById("map");
+        const messageElement = document.getElementById("location_not_found");
+
+        if (!mapContainer) {
+          console.error("❌ Map container not found!");
+          return;
+        }
+
+        // Clear previous map instance
+        if (mapInstance) {
+          mapInstance.remove();
+          mapInstance = null;
+        }
+
+        mapContainer.innerHTML = "";
+
+        // Use filtered_data if available, otherwise use global_data
+        const dataToUse =
+          filtered_data && filtered_data.length > 0
+            ? filtered_data
+            : global_data;
+
+        if (!Array.isArray(dataToUse) || dataToUse.length === 0) {
+          messageElement.textContent =
+            "📍 No location data available. Please load analytics first.";
+          messageElement.style.display = "block";
+          mapContainer.style.display = "none";
+          return;
+        }
+
+        // Parse locations from GeoJSON
+        const locations = [];
+
+        dataToUse.forEach((data, index) => {
+          try {
+            // Check both possible field names
+            const locationString = data["Geo Location"] || data["Location"];
+
+            if (
+              !locationString ||
+              locationString === "null" ||
+              locationString === "undefined"
+            ) {
+              return;
+            }
+
+            let geoData;
+            if (typeof locationString === "string") {
+              geoData = JSON.parse(locationString);
+            } else {
+              geoData = locationString;
+            }
+
+            // Extract coordinates from GeoJSON
+            if (geoData && geoData.features && geoData.features[0]) {
+              const feature = geoData.features[0];
+              if (feature.geometry && feature.geometry.coordinates) {
+                const coordinates = feature.geometry.coordinates;
+
+                // GeoJSON format: [longitude, latitude]
+                const lng = parseFloat(coordinates[0]);
+                const lat = parseFloat(coordinates[1]);
+
+                if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                  locations.push({
+                    lat: lat,
+                    lng: lng,
+                    name: data.name || `Location ${index + 1}`,
+                    user: decodeIfNeeded(data.User) || "Unknown user", // Decode user name
+                    creation: data.creation
+                      ? data.creation.split(" ")[0]
+                      : "Unknown date",
+                    id: index + 1,
+                  });
+                }
+              }
+            }
+          } catch (error) {
+            console.debug("Skipping invalid location at index", index);
+          }
+        });
+
+        if (locations.length === 0) {
+          messageElement.textContent =
+            "📍 No valid GeoJSON coordinates found in the data.";
+          messageElement.style.display = "block";
+          mapContainer.style.display = "none";
+          return;
+        }
+
+        // Hide message and show map
+        messageElement.style.display = "none";
+        mapContainer.style.display = "block";
+
+        try {
+          // Calculate center (use first location)
+          let centerLat = locations[0].lat;
+          let centerLng = locations[0].lng;
+
+          // Initialize Leaflet map
+          mapInstance = L.map("map").setView([centerLat, centerLng], 12);
+
+          // Add OpenStreetMap base layer
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+              '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+          }).addTo(mapInstance);
+
+          // Add scale control
+          L.control.scale({ imperial: false, metric: true }).addTo(mapInstance);
+
+          // Create custom marker icon
+          const redIcon = L.divIcon({
+            html: '<div style="background-color: #b71c1c; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>',
+            className: "custom-marker",
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+            popupAnchor: [0, -10],
+          });
+
+          // Add markers directly to map
+          const markerBounds = [];
+
+          locations.forEach((loc) => {
+            const marker = L.marker([loc.lat, loc.lng], { icon: redIcon });
+
+            // Create popup content
+            const popupContent = `
+                        <div style="min-width: 220px; padding: 5px;">
+                            <h3 style="color: #b71c1c; margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #b71c1c; font-size: 16px;">
+                                📍 Location #${loc.id}
+                            </h3>
+                            <p style="margin: 8px 0;"><strong>👤 User:</strong> ${loc.user}</p>
+                            <p style="margin: 8px 0;"><strong>📅 Date:</strong> ${loc.creation}</p>
+                            <p style="margin: 8px 0;"><strong>📍 Coordinates:</strong></p>
+                            <div style="background: #f5f5f5; padding: 10px; border-radius: 6px; font-family: monospace;">
+                                <div>Latitude: ${loc.lat.toFixed(6)}°</div>
+                                <div>Longitude: ${loc.lng.toFixed(6)}°</div>
+                            </div>
+                            <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">
+                                <a href="https://www.google.com/maps?q=${loc.lat},${loc.lng}" target="_blank" style="color: #b71c1c; text-decoration: none;">
+                                    🌍 View in Google Maps
+                                </a>
+                            </p>
+                        </div>
+                    `;
+
+            marker.bindPopup(popupContent, {
+              maxWidth: 300,
+              className: "custom-popup",
+            });
+
+            marker.addTo(mapInstance);
+            markerBounds.push(marker.getLatLng());
+          });
+
+          // Fit map to bounds of all markers
+          if (markerBounds.length > 1) {
+            const bounds = L.latLngBounds(markerBounds);
+            mapInstance.fitBounds(bounds.pad(0.1));
+          }
+
+          // Add location stats
+          const statsDiv = document.createElement("div");
+          statsDiv.className = "location-stats";
+          statsDiv.innerHTML = `
+                    <span style="font-weight: bold;">📍 ${locations.length} Locations Found</span>
+                    <span class="location-count">${locations.length} Points</span>
+                `;
+
+          // Insert stats before map
+          const spatialReport = document.getElementById("spatial-report");
+          const existingStats = spatialReport.querySelector(".location-stats");
+          if (existingStats) {
+            existingStats.remove();
+          }
+          spatialReport.insertBefore(statsDiv, mapContainer);
+
+          console.log(`✅ Map loaded with ${locations.length} locations`);
+          showAlert(`🗺️ Map loaded: ${locations.length} locations`, 3000);
+        } catch (error) {
+          console.error("❌ Error initializing map:", error);
+          messageElement.textContent =
+            "❌ Error loading map. Please try again.";
+          messageElement.style.display = "block";
+          mapContainer.style.display = "none";
+        }
+      }
+
+      // ============================================
+      // DAILY REPORT
+      // ============================================
+      async function loadDailyReport() {
+        const survey = new URLSearchParams(window.location.search).get(
+          "survey",
+        );
+        const tbody = document.querySelector("#daily-report-table tbody");
+        tbody.innerHTML =
+          '<tr><td colspan="2" class="text-center">📅 Loading daily report...</td></tr>';
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/resource/${survey}?fields=["*"]&limit_page_length=0`,
+            {
+              headers: {
+                Authorization: "Token 405e0af40f3d04a:885b55cc21d37d2",
+                "X-Frappe-CSRF-Token": window.frappe?.csrf_token || "",
+              },
+            },
+          );
+
+          const data = await response.json();
+          const responses = data.data || [];
+
+          const dateCounts = {};
+          responses.forEach((item) => {
+            const creationDate = item.creation
+              ? item.creation.split(" ")[0]
+              : "Unknown";
+            dateCounts[creationDate] = (dateCounts[creationDate] || 0) + 1;
+          });
+
+          if (Object.keys(dateCounts).length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="2" class="text-center">📭 No data available</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = Object.entries(dateCounts)
+            .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+            .map(
+              ([date, count]) => `
+                        <tr>
+                            <td>${formatDate(date)}</td>
+                            <td style="font-weight: bold; color: #b03a2e;">${count}</td>
+                        </tr>
+                    `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("❌ Error loading daily report:", error);
+          tbody.innerHTML =
+            '<tr><td colspan="2" class="text-center" style="color: #b03a2e;">❌ Error loading data</td></tr>';
+        }
+      }
+
+      // ============================================
+      // SUMMARY REPORT
+      // ============================================
+      async function loadSummary() {
+        const survey = new URLSearchParams(window.location.search).get(
+          "survey",
+        );
+        const tbody = document.querySelector("#summary-table tbody");
+        tbody.innerHTML =
+          '<tr><td colspan="3" class="text-center">📋 Loading summary report...</td></tr>';
+
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/resource/${survey}?fields=["*"]&limit_page_length=0`,
+            {
+              headers: {
+                Authorization: "Token 405e0af40f3d04a:885b55cc21d37d2",
+                "X-Frappe-CSRF-Token": window.frappe?.csrf_token || "",
+              },
+            },
+          );
+
+          const data = await response.json();
+          const responses = data.data || [];
+
+          const dateUserCounts = {};
+
+          responses.forEach((item) => {
+            const creationDate = item.creation
+              ? item.creation.split(" ")[0]
+              : "Unknown";
+            const user = decodeIfNeeded(item.user || item.owner || "Unknown"); // Decode user name
+
+            if (!dateUserCounts[creationDate]) {
+              dateUserCounts[creationDate] = {};
+            }
+
+            dateUserCounts[creationDate][user] =
+              (dateUserCounts[creationDate][user] || 0) + 1;
+          });
+
+          let rowsHtml = "";
+          Object.entries(dateUserCounts)
+            .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+            .forEach(([date, users]) => {
+              Object.entries(users).forEach(([user, count]) => {
+                rowsHtml += `
+                                <tr>
+                                    <td>${formatDate(date)}</td>
+                                    <td>${user}</td>
+                                    <td style="font-weight: bold; color: #b03a2e;">${count}</td>
+                                </tr>
+                            `;
+              });
+            });
+
+          tbody.innerHTML =
+            rowsHtml ||
+            '<tr><td colspan="3" class="text-center">📭 No data available</td></tr>';
+        } catch (error) {
+          console.error("❌ Error loading summary:", error);
+          tbody.innerHTML =
+            '<tr><td colspan="3" class="text-center" style="color: #b03a2e;">❌ Error loading data</td></tr>';
+        }
+      }
+
+      async function fetchFilters(survey_name) {
+        try {
+          const response = await fetch(
+            `${API_BASE}/api/method/leadtech_survey.leadtech_survey.get_filters.filters?doctype_name=${survey_name}`,
+            {
+              headers: {
+                Authorization: "Token 405e0af40f3d04a:885b55cc21d37d2",
+                "X-Frappe-CSRF-Token": window.frappe?.csrf_token || "",
+              },
+            },
+          );
+
+          const data = await response.json();
+          filterData = data.message || [];
+          optionsHTML = filterData
+            .map(({ label }) => `<option value="${label}">${label}</option>`)
+            .join("");
+        } catch (error) {
+          console.error("❌ Error fetching filters:", error);
+        }
+      }
+
+      function addFilter() {
+        const tbody = document.getElementById("filter-body");
+        const row = tbody.insertRow();
+
+        row.innerHTML = `
+                <td>
+                    <select class="question-select" onchange="populateOperators(this)">
+                        <option value="">Select Question</option>
+                        ${optionsHTML}
+                    </select>
+                </td>
+                <td>
+                    <select class="operator-select" onchange="populateResponses(this)">
+                        <option value="">Select Operator</option>
+                    </select>
+                </td>
+                <td class="response-cell">
+                    <select class="response-select">
+                        <option value="">Select Response</option>
+                    </select>
+                </td>
+                <td>
+                    <button id="close-btn" onclick="removeFilter(this)">✕</button>
+                </td>
+            `;
+
+        document.getElementById("filter-table").style.display = "table";
+        document.querySelector(".action-buttons").style.display = "flex";
+        document.getElementById("show-hide-icon").style.display = "none";
+      }
+
+      function populateOperators(questionSelect) {
+        const selectedLabel = questionSelect.value;
+        const selectedQuestion = filterData.find(
+          ({ label }) => label === selectedLabel,
+        );
+        const operatorSelect =
+          questionSelect.parentElement.nextElementSibling.firstElementChild;
+        const responseCell = operatorSelect.parentElement.nextElementSibling;
+
+        if (
+          selectedQuestion &&
+          selectedQuestion.operators &&
+          selectedQuestion.operators.length > 0
+        ) {
+          operatorSelect.innerHTML =
+            '<option value="">Select Operator</option>' +
+            selectedQuestion.operators
+              .map((op) => `<option value="${op}">${op}</option>`)
+              .join("");
+        }
+
+        responseCell.innerHTML =
+          '<select class="response-select"><option value="">Select Response</option></select>';
+      }
+
+      function populateResponses(operatorSelect) {
+        const operator = operatorSelect.value.toLowerCase();
+        const questionSelect =
+          operatorSelect.parentElement.previousElementSibling.firstElementChild;
+        const selectedLabel = questionSelect.value;
+        const selectedQuestion = filterData.find(
+          ({ label }) => label === selectedLabel,
+        );
+        const responseCell = operatorSelect.parentElement.nextElementSibling;
+
+        if (
+          ["answered", "not answered", "checked", "unchecked"].includes(
+            operator,
+          )
+        ) {
+          responseCell.innerHTML =
+            '<select class="response-select" disabled><option value="">N/A</option></select>';
+        } else if (
+          selectedQuestion &&
+          selectedQuestion.options &&
+          selectedQuestion.options.length > 0
+        ) {
+          responseCell.innerHTML = `
+                    <select class="response-select">
+                        <option value="">Select Response</option>
+                        ${selectedQuestion.options.map((opt) => `<option value="${opt}">${opt}</option>`).join("")}
+                    </select>
+                `;
+        } else {
+          responseCell.innerHTML =
+            '<input type="text" class="response-input" placeholder="Enter response value" />';
+        }
+      }
+
+      function removeFilter(button) {
+        const row = button.closest("tr");
+        row.remove();
+
+        if (document.getElementById("filter-body").rows.length === 0) {
+          cancel();
+        }
+      }
+
+      function saveData() {
+        loadAnalytics(
+          document.getElementById("fromDate").value,
+          document.getElementById("toDate").value,
+          document.getElementById("user_filter_options").value,
+          true,
+        );
+        cancel();
+      }
+
+      function cancel() {
+        const filterTable = document.getElementById("filter-table");
+        const actionButtons = document.querySelector(".action-buttons");
+
+        filterTable.style.display = "none";
+        actionButtons.style.display = "none";
+        document.getElementById("show-hide-icon").style.display = "block";
+      }
+
+      function toggleTable() {
+        const filterTable = document.getElementById("filter-table");
+        const actionButtons = document.querySelector(".action-buttons");
+
+        if (filterTable.style.display === "none") {
+          filterTable.style.display = "table";
+          actionButtons.style.display = "flex";
+          document.getElementById("show-hide-icon").style.display = "none";
+        } else {
+          cancel();
+        }
+      }
+
+      function applyFilters() {
+        const fromDate = document.getElementById("fromDate").value;
+        const toDate = document.getElementById("toDate").value;
+        const user = document.getElementById("user_filter_options").value;
+
+        loadAnalytics(fromDate, toDate, user, true);
+        showAlert("🔍 Filters applied", 2000);
+      }
+
+      function resetFilters() {
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+        document.getElementById("fromDate").value = thirtyDaysAgo
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("toDate").value = today
+          .toISOString()
+          .split("T")[0];
+        document.getElementById("user_filter_options").value = "";
+        selectedUser = "";
+
+        // Clear advanced filters
+        document.getElementById("filter-body").innerHTML = "";
+        cancel();
+
+        loadAnalytics(
+          document.getElementById("fromDate").value,
+          document.getElementById("toDate").value,
+          "",
+          false,
+        );
+
+        showAlert("🔄 Filters reset to default", 2000);
+      }
+
+      function handleUserChange(selectElement) {
+        selectedUser = selectElement.value;
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr || dateStr === "Unknown") return "Unknown";
+        try {
+          const date = new Date(dateStr);
+          return date.toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+        } catch {
+          return dateStr;
+        }
+      }
+
+      function showAlert(message, duration = 4000) {
+        const alert = document.getElementById("copyAlert");
+        const alertMessage = document.getElementById("alertMessage");
+
+        if (!alert || !alertMessage) return;
+
+        alertMessage.textContent = message;
+        alert.classList.add("show");
+
+        setTimeout(() => {
+          alert.classList.remove("show");
+        }, duration);
+      }
+
+      function closeAlert() {
+        const alert = document.getElementById("copyAlert");
+        if (alert) {
+          alert.classList.remove("show");
+        }
+      }
+
+      function showLoader() {
+        const loader = document.getElementById("loader");
+        if (loader) loader.style.display = "block";
+      }
+
+      function hideLoader() {
+        const loader = document.getElementById("loader");
+        if (loader) loader.style.display = "none";
+      }
+
+      // ============================================
+      // CLEANUP ON PAGE LEAVE
+      // ============================================
+      window.addEventListener("beforeunload", function () {
+        // Destroy chart instances
+        Object.keys(chartInstances).forEach((key) => {
+          if (chartInstances[key]) {
+            chartInstances[key].destroy();
+          }
+        });
+        chartInstances = {};
+
+        // Remove map instance
+        if (mapInstance) {
+          mapInstance.remove();
+          mapInstance = null;
+        }
+      });
+
+      // Handle mobile sidebar
+      window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove("mobile-open");
+        }
+      });
+
+      // Make functions globally available
+      window.showTab = showTab;
+      window.handleTabSelection = handleTabSelection;
+      window.applyFilters = applyFilters;
+      window.resetFilters = resetFilters;
+      window.addFilter = addFilter;
+      window.populateOperators = populateOperators;
+      window.populateResponses = populateResponses;
+      window.removeFilter = removeFilter;
+      window.saveData = saveData;
+      window.cancel = cancel;
+      window.toggleTable = toggleTable;
+      window.handleUserChange = handleUserChange;
+      window.closeAlert = closeAlert;
+    </script>
+  </body>
+</html>
