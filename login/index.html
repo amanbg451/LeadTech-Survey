@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        .full-container {
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #b71c1c, #f44336);
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 500px; 
+            height: 600px;
+            position: relative;
+        }
+
+        .login-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #b71c1c;
+        }
+
+        .login-container label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: #b71c1c;
+            font-weight: bold;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
+            margin: 30px auto;
+        }
+
+        .input-container input[type="text"],
+        .input-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #b71c1c;
+            border-radius: 4px;
+            font-size: 1.2rem;
+        }
+
+        .input-container input:focus {
+            border-color: #b71c1c;
+            outline: none;
+            box-shadow: 0 0 5px rgba(244, 67, 54, 0.5);
+        }
+
+        .input-container .icon {
+            position: absolute;
+            right: 13px;
+            top: 65%;
+            transform: translateY(-50%);
+            color: #b71c1c;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #9a0007;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            margin-top: 40px;
+            font-weight: 600;
+        }
+
+        .login-container button:hover {
+            background-color: #f44336;
+        }
+
+        .login-container button:active {
+            background-color: #9a0007;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #b71c1c;
+        }
+
+        .ledtech {
+            font-size: 1.7rem;
+            font-weight: 500;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-transform: uppercase;
+            text-align: left;
+            margin-bottom: 40px;
+            font-weight: 600;
+            color: #9a0007;
+        }
+
+        .ledtech span {
+            color: #666666;
+        }
+
+        /* Error message styling */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            text-align: left;
+        }
+        
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #b71c1c;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Session warning modal */
+        .session-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .session-modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+            position: relative;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .session-modal-content h3 {
+            color: #b71c1c;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .session-modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .session-modal-content button {
+            background-color: #9a0007;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s ease;
+        }
+
+        .session-modal-content button:hover {
+            background-color: #f44336;
+        }
+
+        .session-modal-content .stay-logged-btn {
+            background-color: #666;
+        }
+
+        .session-modal-content .stay-logged-btn:hover {
+            background-color: #888;
+        }
+
+        .countdown-timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: #b71c1c;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="full-container">
+        <div class="login-container">
+            <div class="ledtech">leadTech <span>Survey</span></div>
+            <h1>Login</h1>
+            
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="loginForm">
+                <div class="input-container">
+                    <label for="username">Username or Email</label>
+                    <i class="fas fa-user icon"></i>
+                    <input type="text" id="username" placeholder="Enter your username or email" required>
+                </div>
+                <div class="input-container">
+                    <label for="password">Password</label>
+                    <i class="fa-solid fa-lock icon toggle-password" id="togglePassword"></i>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit">Login</button>
+                <div id="loader" style="display: none;"></div> 
+            </form>
+        </div>
+    </div>
+
+    <!-- Session Expiry Warning Modal -->
+    <div id="sessionModal" class="session-modal">
+        <div class="session-modal-content">
+            <h3>⚠️ Session Expiring</h3>
+            <p>Your session will expire in:</p>
+            <div id="countdownTimer" class="countdown-timer">02:00</div>
+            <p>Due to inactivity, your session will expire soon.</p>
+            <button id="extendSessionBtn" class="stay-logged-btn">Stay Logged In</button>
+            <button id="logoutSessionBtn">Logout Now</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SESSION MANAGEMENT ====================
+        const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+        const WARNING_TIME = 2 * 60 * 1000; // Show warning 2 minutes before expiry
+        let sessionTimer;
+        let warningTimer;
+        let countdownInterval;
+
+        // Senior's function to clear all cookies and redirect
+        function clearAllCookiesAndRedirect() {
+            // Clear all cookies
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
+            }
+            
+            console.log('%c🧹 All cookies cleared! Redirecting...', 'color: #F44336; font-weight: bold;');
+            
+            // Hide modal if visible
+            document.getElementById('sessionModal').style.display = 'none';
+            
+            // Redirect to the login page
+            window.location.href = 'https://dev.leadtech.in/survey/login-test';
+        }
+
+        // Function to show session warning modal
+        function showSessionWarning() {
+            const modal = document.getElementById('sessionModal');
+            const countdownEl = document.getElementById('countdownTimer');
+            let timeLeft = 120; // 2 minutes in seconds
+
+            modal.style.display = 'block';
+
+            // Update countdown every second
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    clearAllCookiesAndRedirect();
+                }
+            }, 1000);
+        }
+
+        // Function to reset session timer
+        function resetSessionTimer() {
+            if (sessionTimer) {
+                clearTimeout(sessionTimer);
+            }
+            if (warningTimer) {
+                clearTimeout(warningTimer);
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            // Hide modal if visible
+            document.getElementById('sessionModal').style.display = 'none';
+
+            // Only set timers if user is logged in
+            if (getCookie('user_email')) {
+                // Set warning timer
+                warningTimer = setTimeout(() => {
+                    showSessionWarning();
+                }, SESSION_TIMEOUT - WARNING_TIME);
+
+                // Set session expiry timer
+                sessionTimer = setTimeout(() => {
+                    clearAllCookiesAndRedirect();
+                }, SESSION_TIMEOUT);
+
+                // Update last activity timestamp
+                setCookie('last_activity', new Date().toISOString(), 7);
+            }
+        }
+
+        // Track user activity
+        function trackUserActivity() {
+            const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
+            
+            events.forEach(event => {
+                document.addEventListener(event, () => {
+                    if (getCookie('user_email')) { // Only reset if user is logged in
+                        resetSessionTimer();
+                    }
+                });
+            });
+        }
+
+        // Check session on page load
+        function checkSessionOnLoad() {
+            const lastActivity = getCookie('last_activity');
+            const userEmail = getCookie('user_email');
+            
+            if (userEmail && lastActivity) {
+                const now = new Date().getTime();
+                const lastActivityTime = new Date(lastActivity).getTime();
+                const timeDiff = now - lastActivityTime;
+                
+                // If session has expired
+                if (timeDiff > SESSION_TIMEOUT) {
+                    console.log('%c⏰ Session expired on page load!', 'color: #F44336; font-weight: bold;');
+                    clearAllCookiesAndRedirect();
+                    return true;
+                } else {
+                    // Calculate remaining time
+                    const remainingTime = SESSION_TIMEOUT - timeDiff;
+                    
+                    // Set warning timer if remaining time is less than warning threshold
+                    if (remainingTime <= WARNING_TIME) {
+                        showSessionWarning();
+                    } else {
+                        // Set warning timer
+                        warningTimer = setTimeout(() => {
+                            showSessionWarning();
+                        }, remainingTime - WARNING_TIME);
+                    }
+                    
+                    // Set session expiry timer
+                    sessionTimer = setTimeout(() => {
+                        clearAllCookiesAndRedirect();
+                    }, remainingTime);
+                }
+            }
+            return false;
+        }
+
+        // ==================== COOKIE UTILITY FUNCTIONS ====================
+        function setCookie(name, value, days = 7) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + JSON.stringify(value) + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const cookieName = name + "=";
+            const cookies = document.cookie.split(';');
+            for(let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) == ' ') {
+                    cookie = cookie.substring(1);
+                }
+                if (cookie.indexOf(cookieName) == 0) {
+                    try {
+                        return JSON.parse(cookie.substring(cookieName.length, cookie.length));
+                    } catch {
+                        return cookie.substring(cookieName.length, cookie.length);
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Function to display stored data in console with nice formatting
+        function displayStoredDataInConsole() {
+            console.log('%c📦 STORED USER DATA FROM COOKIES', 'color: #4CAF50; font-size: 16px; font-weight: bold;');
+            console.log('=========================================');
+            
+            // Get all stored data
+            const userEmail = getCookie('user_email');
+            const userType = getCookie('user_type');
+            const userData = getCookie('user_login_data');
+            const projects = getCookie('user_projects');
+            const fullName = getCookie('full_name');
+            const homePage = getCookie('home_page');
+            const userId = getCookie('user_id');
+            const clients = getCookie('user_clients');
+            
+            // Display basic info
+            console.log('%c👤 USER INFORMATION:', 'color: #2196F3; font-weight: bold;');
+            console.log('   Email:', userEmail || 'N/A');
+            console.log('   Full Name:', fullName || 'N/A');
+            console.log('   User Type:', userType || 'N/A');
+            console.log('   User ID:', userId || 'N/A');
+            console.log('   Home Page:', homePage || 'N/A');
+            
+            // Display clients array for super_admin
+            if (clients && clients.length > 0) {
+                console.log('%c🏢 AVAILABLE CLIENTS:', 'color: #FF9800; font-weight: bold;');
+                clients.forEach((client, index) => {
+                    console.log(`   ${index + 1}. ${client}`);
+                });
+            }
+            
+            // Display client_id if available (for authorized users)
+            if (userData && userData.message && userData.message.client_id) {
+                console.log('%c🏢 ASSIGNED CLIENT:', 'color: #FF9800; font-weight: bold;');
+                console.log('   Client ID:', userData.message.client_id);
+            }
+            
+            // Display projects
+            if (projects && projects.length > 0) {
+                console.log('%c📋 PROJECTS:', 'color: #9C27B0; font-weight: bold;');
+                projects.forEach((project, index) => {
+                    console.log(`   📁 Project ${index + 1}: ${project.project_id}`);
+                    console.log(`      Client: ${project.client}`);
+                    if (project.survey_assign && project.survey_assign.length > 0) {
+                        console.log(`      Surveys Assigned (${project.survey_assign.length}):`);
+                        project.survey_assign.forEach((survey, sIndex) => {
+                            console.log(`         ${sIndex + 1}. ${survey.name1}`);
+                        });
+                    }
+                });
+            }
+            
+            // Display complete raw data
+            console.log('%c📊 COMPLETE RAW DATA:', 'color: #F44336; font-weight: bold;');
+            console.log('   User Data (Full):', userData);
+            
+            console.log('=========================================');
+            console.log('%c✅ Data retrieval complete!', 'color: #4CAF50;');
+        }
+
+        // Check if user is already logged in (has email in cookies)
+        function checkExistingSession() {
+            const userEmail = getCookie('user_email');
+            const userData = getCookie('user_login_data');
+            
+            if (userEmail && userData) {
+                console.log('%c🔍 EXISTING SESSION FOUND', 'color: #FF9800; font-size: 14px; font-weight: bold;');
+                displayStoredDataInConsole();
+                
+                // Check if session is still valid
+                const sessionValid = checkSessionOnLoad();
+                if (!sessionValid) {
+                    return true; // Redirecting
+                }
+                
+                // User has existing session, redirect to dashboard
+                window.location.href = `https://dev.leadtech.in/survey/dashboard-test`;
+                return true;
+            }
+            return false;
+        }
+
+        // ==================== INITIALIZATION ====================
+        // Check for existing session on page load
+        if (checkExistingSession()) {
+            // If redirect happens, stop further execution
+            throw new Error('Redirecting to dashboard');
+        }
+
+        // Start tracking user activity
+        trackUserActivity();
+
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const errorMessage = document.getElementById('errorMessage');
+        const loader = document.getElementById('loader');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            if (this.classList.contains('fa-lock')) {
+                this.classList.remove('fa-lock');
+                this.classList.add('fa-unlock');
+            } else {
+                this.classList.remove('fa-unlock');
+                this.classList.add('fa-lock');
+            }
+        });
+
+        // Session modal buttons
+        document.getElementById('extendSessionBtn').addEventListener('click', function() {
+            resetSessionTimer();
+        });
+
+        document.getElementById('logoutSessionBtn').addEventListener('click', function() {
+            clearAllCookiesAndRedirect();
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const identifier = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const data = { usr: identifier, pwd: password };
+            
+            showLoader();
+            hideError();
+
+            // Login API endpoint
+            fetch('https://dev.leadtech.in/api/method/leadtech_survey.leadtech_survey.permission_api.login_and_get_projects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Frappe-CSRF-Token': frappe.csrf_token,
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                const result = await response.json();
+                hideLoader();
+                
+                console.log('%c🔐 LOGIN RESPONSE:', 'color: #2196F3; font-size: 14px; font-weight: bold;', result);
+                
+                // Check if login was successful
+                if (result.message && result.message.status === 'success') {
+                    // Store the email in cookies
+                    setCookie('user_email', identifier, 7);
+                    
+                    // Store the entire response in cookies
+                    setCookie('user_login_data', result, 7);
+                    
+                    // Store specific user data based on login type
+                    if (result.message.login_type) {
+                        setCookie('user_type', result.message.login_type, 7);
+                    }
+                    
+                    if (result.message.projects) {
+                        setCookie('user_projects', result.message.projects, 7);
+                    }
+                    
+                    if (result.full_name) {
+                        setCookie('full_name', result.full_name, 7);
+                    }
+                    if (result.login_type == 'authorized' && result.client_id) {
+                        setCookie('client_id', result.client_id, 7);
+                    }
+                    
+                    // Store clients array for super_admin
+                    if (result.message.clients && result.message.clients.length > 0) {
+                        setCookie('user_clients', result.message.clients, 7);
+                        console.log('%c📋 CLIENTS ARRAY STORED:', 'color: #9C27B0; font-weight: bold;', result.message.clients);
+                    }
+                    
+                    // Store client_id for authorized users
+                    if (result.message.client_id) {
+                        setCookie('client_id', result.message.client_id, 7);
+                    }
+                    
+                    // Store user for authorized/super_admin users
+                    if (result.message.user) {
+                        setCookie('user_id', result.message.user, 7);
+                    }
+                    
+                    if (result.home_page) {
+                        setCookie('home_page', result.home_page, 7);
+                    }
+
+                    // Store last activity timestamp
+                    setCookie('last_activity', new Date().toISOString(), 7);
+                    
+                    console.log('%c💾 DATA STORED IN COOKIES SUCCESSFULLY!', 'color: #4CAF50; font-size: 16px; font-weight: bold;');
+                    
+                    // Display all stored data
+                    displayStoredDataInConsole();
+
+                    // Initialize session timer
+                    resetSessionTimer();
+                    
+                    // Small delay to ensure cookies are set before redirect
+                    setTimeout(() => {
+                        // Redirect to dashboard
+                        window.location.href = `https://dev.leadtech.in/survey/dashboard-test`;
+                    }, 2000);
+                    
+                } else {
+                    // Handle error response
+                    const errorMsg = result.message?.message || 'Login failed! Please try again.';
+                    showError(errorMsg);
+                    console.error('%c❌ LOGIN FAILED:', 'color: #F44336; font-weight: bold;', errorMsg);
+                }
+            })
+            .catch(error => {
+                hideLoader();
+                console.error('%c❌ LOGIN ERROR:', 'color: #F44336; font-weight: bold;', error);
+                showError('An unexpected error occurred. Please try again.');
+            });
+        });
+
+        // Function to check permissions
+        function checkUserPermissions(email) {
+            fetch('https://dev.leadtech.in/api/method/leadtech_survey.leadtech_survey.permission_api.check_doctype_permission', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Token 405e0af40f3d04a:885b55cc21d37d2'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('%c🔑 PERMISSION CHECK:', 'color: #FF9800; font-weight: bold;', result);
+                setCookie('permission_data', result, 7);
+            })
+            .catch(error => console.error('Permission check error:', error));
+        }
+
+        function showLoader() {
+            loader.style.display = 'block';
+            document.querySelector('button[type="submit"]').style.opacity = '0.5';
+            document.querySelector('button[type="submit"]').disabled = true;
+        }
+        
+        function hideLoader() {
+            loader.style.display = 'none';
+            document.querySelector('button[type="submit"]').style.opacity = '1';
+            document.querySelector('button[type="submit"]').disabled = false;
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            // Auto hide error after 5 seconds
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Function to get stored user data
+        function getUserData() {
+            return {
+                email: getCookie('user_email'),
+                userData: getCookie('user_login_data'),
+                userType: getCookie('user_type'),
+                clientId: getCookie('client_id'),
+                clients: getCookie('user_clients'),
+                projects: getCookie('user_projects'),
+                fullName: getCookie('full_name'),
+                userId: getCookie('user_id'),
+                homePage: getCookie('home_page')
+            };
+        }
+
+        // Function to clear user data (logout)
+        function logout() {
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            console.log('%c🚪 LOGGED OUT - Cookies cleared', 'color: #F44336; font-weight: bold;');
+            window.location.href = '/login.html';
+        }
+
+        // Display welcome message in console
+        console.log('%c🚀 LEADTECH SURVEY LOGIN PAGE', 'color: #b71c1c; font-size: 20px; font-weight: bold;');
+        console.log('%cWaiting for user login...', 'color: #666; font-style: italic;');
+    </script>
+</body>
+</html>

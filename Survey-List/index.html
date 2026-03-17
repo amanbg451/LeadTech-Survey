@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>  
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Institute Dashboard - Surveys</title>
@@ -42,7 +43,7 @@
 
         .navbar1 .logo img,
         .navbar1 .logo1 img {
-            margin:0px;
+            margin: 0px;
             height: 42px;
             transition: transform 0.3s ease;
         }
@@ -61,7 +62,7 @@
             font-size: 1.3rem;
             cursor: pointer;
             /*margin-right: 50px;*/
-            margin:0px;
+            margin: 0px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -368,7 +369,7 @@
             height: 100%;
         }
 
-        .sidebar.collapsed ~ .main-content {
+        .sidebar.collapsed~.main-content {
             margin-left: 80px;
         }
 
@@ -386,10 +387,12 @@
             line-height: 1.2;
             box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
         }
+
         button:hover {
             background: linear-gradient(135deg, #c0392b, #b03a2e);
             box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
         }
+
         button.outline {
             background: transparent;
             color: #b03a2e;
@@ -398,15 +401,18 @@
             box-shadow: none;
             transition: background 0.3s ease, color 0.3s ease;
         }
+
         button.outline:hover {
             background: #b03a2e;
             color: white;
             box-shadow: 0 4px 7px rgba(0, 0, 0, 0.2);
         }
+
         .search-box {
             text-align: right;
             margin: 10px;
         }
+
         input[type="text"] {
             padding: 10px;
             border: 1px solid #ddd;
@@ -414,13 +420,16 @@
             font-size: 1em;
             width: 300px;
         }
+
         input[type="text"]:focus {
             outline: none;
             box-shadow: 0 0 8px rgba(217, 83, 79, 0.5);
         }
+
         input[type="text"]::placeholder {
             font-style: none;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -431,6 +440,7 @@
             margin: 15px 0;
             font-family: "Roboto", sans-serif;
         }
+
         th {
             background: linear-gradient(135deg, #b03a2e, #c0392b);
             color: white;
@@ -441,6 +451,7 @@
             font-size: 0.9em;
             letter-spacing: 0.04em;
         }
+
         td {
             background: #fafafa;
             padding: 8px 12px;
@@ -450,26 +461,34 @@
             vertical-align: middle;
             text-align: left;
         }
+
         td:nth-child(even) {
             background: #f7f7f7;
         }
+
         td:hover {
             background-color: #f0f0f0;
             cursor: pointer;
         }
+
         tr:hover td {
             background-color: #f2f2f2;
         }
+
         td:first-child {
             font-weight: bold;
             color: #b03a2e;
         }
+
         @media (max-width: 768px) {
-            th, td {
+
+            th,
+            td {
                 padding: 6px 10px;
                 font-size: 0.85em;
             }
         }
+
         .optionsContainer {
             margin-top: 10px;
             background: #ffffff;
@@ -479,10 +498,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: box-shadow 0.3s ease, transform 0.3s ease;
         }
+
         .optionsContainer:hover {
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             transform: translateY(-2px);
         }
+
         .draggable {
             cursor: move;
             border: 1px solid #ddd;
@@ -493,18 +514,22 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .draggable td button {
             align-items: center;
         }
+
         .dragging {
             background-color: #e74c3c;
             color: white;
             border: 2px solid #c0392b;
         }
+
         .drag-over {
             border: 2px dashed #e74c3c;
             background-color: #fbdcdb;
         }
+
         .drop-container {
             border: 2px dashed #ddd;
             padding: 20px;
@@ -512,19 +537,24 @@
             background: #fafafa;
             transition: background-color 0.3s ease;
         }
+
         .drop-container.drag-over {
             border-color: #e74c3c;
             background-color: #fbdcdb;
         }
+
         .drop-container:hover {
             border-color: #e74c3c;
         }
+
         .formatCell h4 {
             text-align: center;
         }
+
         .formatCell {
             margin: 10px;
         }
+
         #popup {
             display: none;
             position: fixed;
@@ -533,37 +563,59 @@
             transform: translate(-50%, -50%);
             background: #ffffff;
             border: 2px solid #ddd;
-            padding: 30px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             z-index: 1000;
-            text-align: center;
             animation: fadeIn 0.3s ease;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow: hidden;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         #popup p {
             font-size: 18px;
             margin-bottom: 20px;
         }
+
         #popup button {
             margin: 5px;
-            padding: 10px 20px;
+            padding: 8px 16px;
             background: linear-gradient(135deg, #b03a2e, #c0392b);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             transition: background 0.3s ease;
+            font-size: 14px;
         }
-        #popup td {
-            align-items: center;
-        }
+
         #popup button:hover {
             background: linear-gradient(135deg, #c0392b, #b03a2e);
         }
+
+        #popup button.secondary {
+            background: #6c757d;
+        }
+
+        #popup button.secondary:hover {
+            background: #5a6268;
+        }
+
+        #popup td {
+            align-items: center;
+        }
+
         #overlay {
             display: none;
             position: fixed;
@@ -574,10 +626,12 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+
         .table-container {
             overflow-x: scroll;
             width: 100%;
         }
+
         select {
             width: 50%;
             padding: 15px;
@@ -589,43 +643,54 @@
             transition: border-color 0.3s ease, background-color 0.3s ease;
             outline: none;
         }
-        select:hover, select:focus {
+
+        select:hover,
+        select:focus {
             outline: None;
             background: #f9f9f9;
         }
+
         option {
             background: #ffffff;
         }
+
         option:hover {
             background: #f2d7d5;
         }
+
         select:focus {
             background-color: #ffffff;
             outline: none;
         }
+
         td select {
             margin-bottom: 10px;
         }
+
         td i {
             cursor: pointer;
             margin: 0 8px;
             font-size: 1.2em;
             color: #b03a2e;
         }
+
         td i:hover {
             color: #c0392b;
         }
+
         .switch {
             position: relative;
             display: inline-block;
             width: 34px;
             height: 20px;
         }
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -637,6 +702,7 @@
             transition: 0.4s;
             border-radius: 34px;
         }
+
         .slider:before {
             position: absolute;
             content: "";
@@ -648,18 +714,23 @@
             transition: 0.4s;
             border-radius: 50%;
         }
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: #b03a2e;
         }
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(14px);
         }
+
         .slider.round {
             border-radius: 34px;
         }
+
         .slider.round:before {
             border-radius: 50%;
         }
+
         .survey-header {
             display: flex;
             justify-content: space-between;
@@ -672,6 +743,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid #eef2f6;
         }
+
         .survey-header h3 {
             font-size: 1.5em;
             color: #b03a2e;
@@ -681,9 +753,11 @@
             align-items: center;
             gap: 10px;
         }
+
         .survey-header h3 i {
             color: #b03a2e;
         }
+
         .create-survey-btn {
             background-color: #b03a2e;
             color: white;
@@ -694,9 +768,11 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         .create-survey-btn:hover {
             background-color: #c0392b;
         }
+
         .search-sort-section {
             display: flex;
             justify-content: space-between;
@@ -708,12 +784,14 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
+
         .search-container {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
         }
+
         .search-input {
             padding: 10px 14px;
             font-size: 0.95em;
@@ -722,12 +800,15 @@
             width: 200px;
             transition: all 0.3s ease;
         }
+
         .search-input:focus {
             outline: none;
             border-color: #b03a2e;
             box-shadow: 0 0 0 3px rgba(176, 58, 46, 0.1);
         }
-        .search-btn, .reset-btn {
+
+        .search-btn,
+        .reset-btn {
             background-color: #b03a2e;
             color: white;
             border: none;
@@ -737,20 +818,25 @@
             transition: all 0.3s ease;
             font-weight: 500;
         }
-        .search-btn:hover, .reset-btn:hover {
+
+        .search-btn:hover,
+        .reset-btn:hover {
             background-color: #c0392b;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .sort-container {
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .sort-container label {
             font-weight: 600;
             color: #475569;
         }
+
         .sort-select {
             padding: 10px 14px;
             border: 1px solid #e2e8f0;
@@ -759,13 +845,16 @@
             min-width: 200px;
             background-color: white;
         }
+
         .sort-select:focus {
             outline: none;
             border-color: #b03a2e;
         }
+
         .container_survey_list {
             width: 100%;
         }
+
         .modal {
             display: none;
             position: fixed;
@@ -774,8 +863,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
         }
+
         .modal-content1 {
             background-color: #fefefe;
             margin: 15% auto;
@@ -785,35 +875,42 @@
             max-width: 500px;
             border-radius: 8px;
         }
+
         .modelheading {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .close-btn {
             cursor: pointer;
             font-size: 24px;
         }
+
         .form-conatainer1 {
             margin-bottom: 15px;
         }
+
         .form-conatainer1 label {
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
         }
+
         .form-conatainer1 input[type="text"] {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+
         .popbutton {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
         }
+
         .table-wrapper {
             overflow-x: auto;
         }
@@ -913,7 +1010,8 @@
                 display: none;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 6px 10px;
                 font-size: 0.85em;
             }
@@ -938,6 +1036,11 @@
             .sort-select {
                 width: 100%;
             }
+
+            #popup {
+                width: 95%;
+                max-height: 95vh;
+            }
         }
 
         @media (min-width: 769px) {
@@ -945,6 +1048,200 @@
                 position: static !important;
                 left: auto !important;
             }
+        }
+
+        /* Popup specific styles */
+        .popup-header {
+            background: linear-gradient(135deg, #b03a2e, #c0392b);
+            padding: 15px 20px;
+            color: white;
+        }
+
+        .popup-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .popup-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background: white;
+            color: #495057;
+            border: 1px solid #ced4da;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #e9ecef;
+        }
+
+        .filter-btn.active {
+            background: #b03a2e;
+            color: white;
+            border-color: #b03a2e;
+        }
+
+        .search-input-popup {
+            padding: 8px 12px;
+            border: 2px solid #b03a2e;
+            border-radius: 4px;
+            outline: none;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: #b03a2e;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #c0392b;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .selection-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .selection-btn {
+            background: transparent;
+            color: #b03a2e;
+            border: 1px solid #b03a2e;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .selection-btn:hover {
+            background: #b03a2e;
+            color: white;
+        }
+
+        .table-container-popup {
+            max-height: 400px;
+            overflow-y: auto;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #userTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #userTable th {
+            background: #b03a2e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        #userTable td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+
+        #userTable tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .popup-footer {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #b03a2e;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .survey-tags {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .survey-tag {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #b03a2e;
+            color: #b03a2e;
+            font-size: 13px;
+        }
+
+        .assigned-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unassign-btn {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .unassign-btn:hover {
+            color: #c82333;
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -1064,14 +1361,15 @@
                     <!-- Survey header -->
                     <div class="survey-header">
                         <h3><i class="fas fa-clipboard-list"></i> Surveys</h3>
-                        <div>
-                            <button type="button" onclick="openBulkPopup()" class="create-survey-btn" style="background: #b03a2e; margin-left: auto">
-                                Bulk Assign/Unassign
-                            </button>
-                            <button type="button" onclick="openCreateSurveyModal(event)" class="create-survey-btn">
-                                Create Survey
-                            </button>
-                        </div>
+                        <!--<div>-->
+                        <!--    <button type="button" onclick="openBulkPopup()" class="create-survey-btn"-->
+                        <!--        style="background: #b03a2e; margin-left: auto">-->
+                        <!--        Bulk Assign/Unassign-->
+                        <!--    </button>-->
+                        <!--    <button type="button" onclick="openCreateSurveyModal(event)" class="create-survey-btn">-->
+                        <!--        Create Survey-->
+                        <!--    </button>-->
+                        <!--</div>-->
                     </div>
 
                     <!-- Create Survey Modal -->
@@ -1125,14 +1423,15 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th><input type="checkbox" id="selectAllSurveys" onclick="toggleAllSurveyCheckboxes(this)" /></th>
+                                    <th><input type="checkbox" id="selectAllSurveys"
+                                            onclick="toggleAllSurveyCheckboxes(this)" /></th>
                                     <th>Survey Name</th>
                                     <th>Creation Date</th>
                                     <th>Modification Date</th>
                                     <th>Delete</th>
                                     <th>Duplicate</th>
                                     <th>Edit Fields</th>
-                                    <th>Assign To</th>
+                                    <!--<th>Assign To</th>-->
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -1141,42 +1440,56 @@
 
                     <div id="popup-overlay" onclick="closePopup()"></div>
 
-                    <!-- Assign Popup -->
+                    <!-- Assign Popup - Redesigned -->
                     <div id="popup">
-                        <div style="background-color: #f4f4f4; padding: 10px; border-bottom: 2px solid #b03a2e; margin-bottom: 15px;">
-                            <h3 id="popupSurveyName" style="margin: 0; color: #b03a2e">
-                                Assigning Survey: <span></span>
-                            </h3>
+                        <div class="popup-header">
+                            <h3 id="popupSurveyName">Bulk Assign/Unassign Surveys</h3>
                         </div>
-                        <div class="heade-div" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div class="filtered-list" style="display: flex; gap: 10px">
-                                <button id="showAll">All</button>
-                                <button id="showAssigned">Assigned</button>
-                                <button id="showUnassigned">Unassigned</button>
-                                <input type="text" id="searchInput" placeholder="Search..." style="height: 38px; margin-top: 5px; border: 2px solid #b71c1c; border-radius: 4px; outline: none;" />
+
+                        <!-- Search Filters and Action Buttons -->
+                        <div class="popup-toolbar">
+                            <div class="filter-buttons">
+                                <button id="showAll" class="filter-btn active">All</button>
+                                <button id="showAssigned" class="filter-btn">Assigned</button>
+                                <button id="showUnassigned" class="filter-btn">Unassigned</button>
+                                <input type="text" id="searchInput" class="search-input-popup"
+                                    placeholder="Search by name, mobile or email..." />
                             </div>
-                            <div class="close-popup" style="display: flex; gap: 10px">
-                                <button onclick="closePopupSomil()">Close</button>
-                                <button id="assignTo" onclick="assignUser()">Assign</button>
+                            <div class="action-buttons">
+                                <button onclick="closePopupSomil()" class="action-btn secondary">Close</button>
+                                <button id="assignTo" onclick="assignUser()" class="action-btn primary">Assign</button>
                             </div>
                         </div>
-                        <div id="loadingMessage">Loading...</div>
-                        <div style="display: flex; justify-content: right">
-                            <button style="scale: 0.7" id="selectAllButton">Select All</button>
-                            <button style="scale: 0.7" id="deselectAllButton">Deselect All</button>
+
+                        <!-- Select/Deselect All Buttons -->
+                        <div class="selection-bar">
+                            <button id="selectAllButton" class="selection-btn">Select All</button>
+                            <button id="deselectAllButton" class="selection-btn">Deselect All</button>
                         </div>
-                        <div class="custom-scrollbar">
-                            <table id="userTable" style="width: 100%; border-collapse: collapse">
-                                <thead style="background-color: #d32f2f; color: white">
+
+                        <!-- Loading Message -->
+                        <div id="loadingMessage" class="loading-message">Loading users...</div>
+
+                        <!-- User Table -->
+                        <div class="table-container-popup">
+                            <table id="userTable">
+                                <thead>
                                     <tr>
-                                        <th style="padding: 8px; text-align: left">Name</th>
-                                        <th style="padding: 8px; text-align: left">Mobile No.</th>
-                                        <th style="padding: 8px; text-align: left">Email</th>
-                                        <th style="padding: 8px; text-align: left">Assign To</th>
+                                        <th>NAME</th>
+                                        <th>MOBILE NO.</th>
+                                        <th>EMAIL</th>
+                                        <!--<th>ASSIGN TO</th>-->
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
+                        </div>
+
+                        <!-- Table Footer with Survey Names -->
+                        <div class="popup-footer" id="surveyFooter">
+                            <div class="survey-tags">
+                                <!-- Survey names will be dynamically added here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1233,7 +1546,9 @@
                                         <option value="address">Address Details</option>
                                     </select>
                                 </td>
-                                <td class="formatCell"><p>Please Select a question type</p></td>
+                                <td class="formatCell">
+                                    <p>Please Select a question type</p>
+                                </td>
                                 <td><input name="mandatory" type="checkbox" /></td>
                                 <td><button type="button" onclick="removeRow(this)">Remove</button></td>
                             </tr>
@@ -1254,7 +1569,7 @@
         function getCookie(name) {
             const cookieName = name + "=";
             const cookies = document.cookie.split(';');
-            for(let i = 0; i < cookies.length; i++) {
+            for (let i = 0; i < cookies.length; i++) {
                 let cookie = cookies[i];
                 while (cookie.charAt(0) == ' ') {
                     cookie = cookie.substring(1);
@@ -1274,7 +1589,7 @@
             const userType = getCookie('user_type') || 'super_admin';
             const userEmail = getCookie('user_email') || 'admin@example.com';
             const fullName = getCookie('full_name') || 'Super Admin';
-            
+
             return {
                 userType: userType,
                 email: userEmail,
@@ -1285,7 +1600,7 @@
         // Helper function to safely decode URI components
         function decodeIfNeeded(str) {
             if (!str || typeof str !== 'string') return str;
-            
+
             // If string contains %20 or other URL encoded characters, decode it
             if (str.includes('%')) {
                 try {
@@ -1300,7 +1615,7 @@
 
         function formatUserName(userData) {
             let name = "";
-            
+
             // Get the raw value and decode it properly
             if (userData.fullName && userData.fullName !== 'undefined' && userData.fullName !== 'null') {
                 name = decodeIfNeeded(userData.fullName);
@@ -1313,14 +1628,14 @@
             } else {
                 name = 'User';
             }
-            
+
             return name;
         }
 
         function setActiveMenu() {
             const currentPath = window.location.pathname;
             document.querySelectorAll('.sidebar nav ul li').forEach(item => item.classList.remove('active'));
-            
+
             if (currentPath.includes('surveys_test_new') || currentPath.includes('surveys')) {
                 document.getElementById('surveys-link')?.classList.add('active');
             } else if (currentPath.includes('dashboard')) {
@@ -1346,9 +1661,9 @@
             console.log('Surveys Page - Applying permissions for user type:', userType);
 
             const userTypeLower = userType ? userType.toLowerCase() : '';
-            const isGuest = userTypeLower.includes('guest') || 
-                           userTypeLower.includes('viewer') || 
-                           userTypeLower.includes('read');
+            const isGuest = userTypeLower.includes('guest') ||
+                userTypeLower.includes('viewer') ||
+                userTypeLower.includes('read');
 
             if (isGuest) {
                 if (createSurveyLink) createSurveyLink.style.display = 'none';
@@ -1365,49 +1680,49 @@
                 if (usersLink) usersLink.style.display = 'block';
                 console.log('Full permissions applied on Surveys page');
             }
-            
+
             setActiveMenu();
         }
 
         // ========== PERMISSION CHECK ==========
-        (function() {
+        (function () {
             const userData = getUserData();
             const userType = userData.userType;
             const userEmail = userData.email;
 
-            console.log("✅ Surveys Page - User Data from cookies =>", { 
-                userType, 
+            console.log("✅ Surveys Page - User Data from cookies =>", {
+                userType,
                 email: userEmail,
                 fullName: userData.fullName
             });
 
-            const isAuthorized = userType && userEmail && 
-                                userType !== 'undefined' && 
-                                userType !== 'null' && 
-                                userEmail !== 'undefined' && 
-                                userEmail !== 'null';
+            const isAuthorized = userType && userEmail &&
+                userType !== 'undefined' &&
+                userType !== 'null' &&
+                userEmail !== 'undefined' &&
+                userEmail !== 'null';
 
             if (!isAuthorized) {
                 document.getElementById('security').style.display = 'flex';
                 document.getElementById('to_show').style.display = 'none';
-                
+
                 setTimeout(function () {
                     window.location.href = "https://dev.leadtech.in/survey/login-test";
                 }, 2000);
             } else {
                 document.getElementById('security').style.display = 'none';
                 document.getElementById('to_show').style.display = 'block';
-                
+
                 // Decode and set user name
                 document.getElementById('userName').textContent = formatUserName(userData);
-                
+
                 // Decode user type properly
                 let userTypeDisplay = decodeIfNeeded(userType);
                 userTypeDisplay = userTypeDisplay.replace(/_/g, ' '); // Replace underscores with spaces
                 document.getElementById('userTypeBadge').textContent = userTypeDisplay;
-                
+
                 applyMenuPermissions(userType);
-                
+
                 setTimeout(() => {
                     const alert = document.getElementById('copyAlert');
                     if (alert) {
@@ -1424,7 +1739,7 @@
         }
 
         // ========== EXACT SIDEBAR TOGGLE FROM DASHBOARD ==========
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const toggleButton = document.getElementById('toggleButton');
             const sidebar = document.getElementById('sidebar');
             const logo = document.getElementById('logo');
@@ -1432,7 +1747,7 @@
             const mainContent = document.getElementById('main-content');
 
             if (toggleButton) {
-                toggleButton.addEventListener('click', function() {
+                toggleButton.addEventListener('click', function () {
                     const isMobile = window.innerWidth <= 768;
 
                     if (isMobile) {
@@ -1462,9 +1777,9 @@
             });
 
             // Handle window resize
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 const isMobile = window.innerWidth <= 768;
-                
+
                 if (isMobile) {
                     sidebar.classList.remove('collapsed');
                     mainContent.style.marginLeft = '0';
@@ -1487,15 +1802,23 @@
             window.dispatchEvent(new Event('resize'));
 
             // Handle project_id in URL
+            // Handle project_id in URL - ONLY for Surveys page
             const urlParams = new URLSearchParams(window.location.search);
             const projectId = urlParams.get('project_id');
+            const currentPath = window.location.pathname;
+
             if (projectId) {
-                document.querySelectorAll('.sidebar nav ul li a').forEach(link => {
-                    const href = link.getAttribute('href');
-                    if (href && !href.includes('?')) {
-                        link.href = href + '?project_id=' + encodeURIComponent(projectId);
-                    }
-                });
+                // Only add project_id to links if we're on a page that needs it
+                // But we want to preserve it ONLY for the Surveys link
+
+                const surveysLink = document.querySelector('#surveys-link a');
+                if (surveysLink && !surveysLink.href.includes('?')) {
+                    const baseHref = surveysLink.getAttribute('href');
+                    surveysLink.href = baseHref + '?project_id=' + encodeURIComponent(projectId);
+                }
+
+                // All other links remain untouched - they keep their original clean URLs
+                // This includes Dashboard, Create Survey, Response, etc.
             }
         });
 
@@ -1503,13 +1826,13 @@
         async function logout() {
             try {
                 await fetch(`${window.location.origin}/api/method/logout`, { method: 'GET' });
-                
-                document.cookie.split(';').forEach(function(c) { 
+
+                document.cookie.split(';').forEach(function (c) {
                     document.cookie = c
                         .replace(/^ +/, '')
                         .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
                 });
-                
+
                 window.location.href = `${window.location.origin}/survey/login-test`;
             } catch (error) {
                 console.error('Logout error:', error);
@@ -1518,7 +1841,7 @@
         }
 
         // Attach logout handler
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const logoutBtn = document.getElementById('logoutButton');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', logout);
@@ -1526,14 +1849,15 @@
         });
 
         // Placeholder functions for survey functionality
-        function openCreateSurveyModal(e) { 
+        function openCreateSurveyModal(e) {
             e.preventDefault();
-            document.getElementById('createSurveyModal').style.display = 'block'; 
+            document.getElementById('createSurveyModal').style.display = 'block';
         }
-        function closeCreateSurveyModal() { 
-            document.getElementById('createSurveyModal').style.display = 'none'; 
+        function closeCreateSurveyModal() {
+            document.getElementById('createSurveyModal').style.display = 'none';
         }
-    
+
     </script>
 </body>
+
 </html>

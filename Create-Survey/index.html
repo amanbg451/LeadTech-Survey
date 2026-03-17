@@ -378,15 +378,17 @@
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             width: 100%;
-            height:100%;
+            height:750px;
             margin: 0 auto;
             border: 1px solid #eef2f6;
         }
 
         .form1 .form-control {
+            /*background: red;*/
             display: flex;
             flex-direction: column;
             gap: 30px;
+            height:100%;
         }
 
         .form1 .row1 {
@@ -570,7 +572,7 @@
             display: flex;
             gap: 15px;
             justify-content: flex-end;
-            margin-top: 30px;
+            margin-top: 25px;
             padding-top: 25px;
             border-top: 2px solid #e9ecef;
         }
@@ -696,6 +698,21 @@
             background: linear-gradient(135deg, #b03a2e, #c0392b);
             color: white;
             font-weight: 600;
+        }
+        #draggable select{
+            padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+        }
+        .screen2 button{
+            margin-top:10px;
+              background-color: #b03a2e;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
         }
 
         .formatCell {
@@ -1103,20 +1120,7 @@
 
                                 <!-- Second Row: Survey Type, Header Text -->
                                 <div class="row1">
-                                    <div class="row1-container">
-                                        <label>Survey Type</label>
-                                        <div class="radio-group">
-                                            <div>
-                                                <input type="radio" id="appsurvey" name="slayout" value="App Survey">
-                                                <label for="appsurvey">App Survey</label>
-                                            </div>
-                                            <div>
-                                                <input type="radio" id="websurvey" name="slayout" value="Web Survey">
-                                                <label for="websurvey">Web Survey</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    
                                     <div class="row1-container">
                                         <label for="hypertext">Header Text</label>
                                         <input type="text" id="hypertext" placeholder="Enter Header Text">

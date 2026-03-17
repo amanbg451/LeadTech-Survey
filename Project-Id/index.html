@@ -613,6 +613,98 @@
       color: #333;
     }
 
+    /* ===== SESSION MANAGEMENT MODAL STYLES ===== */
+    .session-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .session-modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 450px;
+      max-width: 90%;
+      text-align: center;
+      position: relative;
+      animation: slideDown 0.3s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border-top: 5px solid #b03a2e;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .session-modal-content h3 {
+      color: #b03a2e;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .session-modal-content p {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .session-modal-content .countdown-timer {
+      font-size: 48px;
+      font-weight: bold;
+      color: #b03a2e;
+      margin: 20px 0;
+      font-family: monospace;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .session-modal-content button {
+      background-color: #b03a2e;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .session-modal-content button:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(176, 58, 46, 0.3);
+    }
+
+    .session-modal-content .stay-logged-btn {
+      background-color: #666;
+    }
+
+    .session-modal-content .stay-logged-btn:hover {
+      background-color: #777;
+    }
+
     /* Loading state */
     .loading {
       text-align: center;
@@ -667,6 +759,16 @@
       .form-container {
         padding: 20px;
       }
+
+      .session-modal-content {
+        margin: 30% auto;
+        width: 90%;
+        padding: 20px;
+      }
+
+      .session-modal-content .countdown-timer {
+        font-size: 36px;
+      }
     }
 
     @media (min-width: 769px) {
@@ -695,6 +797,18 @@
       <i class="fas fa-check-circle" style="color: #28a745;"></i>
       Welcome To Project ID Page!
       <span class="closebtn" onclick="closeAlert()">×</span>
+    </div>
+
+    <!-- ===== SESSION MANAGEMENT MODAL ===== -->
+    <div id="sessionModal" class="session-modal">
+      <div class="session-modal-content">
+        <h3>⚠️ Session Expiring</h3>
+        <p>Your session will expire in:</p>
+        <div id="countdownTimer" class="countdown-timer">02:00</div>
+        <p>Due to inactivity, your session will expire soon.</p>
+        <button id="extendSessionBtn" class="stay-logged-btn">Stay Logged In</button>
+        <button id="logoutSessionBtn">Logout Now</button>
+      </div>
     </div>
 
     <!-- ===== EXACT NAVBAR FROM DASHBOARD ===== -->
@@ -789,6 +903,131 @@
   </div>
 
   <script>
+    // ========== SESSION MANAGEMENT FUNCTIONS ==========
+    const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+    const WARNING_TIME = 2 * 60 * 1000;     // 2 minutes warning
+    let sessionTimer;
+    let warningTimer;
+    let countdownInterval;
+
+    // Senior's function to clear all cookies and redirect
+    function clearAllCookiesAndRedirect() {
+      // Clear all cookies
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
+      }
+      
+      console.log('%c🧹 All cookies cleared! Redirecting...', 'color: #F44336; font-weight: bold;');
+      
+      // Hide modal if visible
+      const modal = document.getElementById('sessionModal');
+      if (modal) modal.style.display = 'none';
+      
+      // Redirect to login
+      window.location.href = 'https://dev.leadtech.in/survey/login-test';
+    }
+
+    // Function to show session warning modal
+    function showSessionWarning() {
+      const modal = document.getElementById('sessionModal');
+      const countdownEl = document.getElementById('countdownTimer');
+      if (!modal || !countdownEl) return;
+      
+      let timeLeft = 120; // 2 minutes in seconds
+
+      modal.style.display = 'block';
+
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          clearAllCookiesAndRedirect();
+        }
+      }, 1000);
+    }
+
+    // Function to reset session timer
+    function resetSessionTimer() {
+      if (sessionTimer) clearTimeout(sessionTimer);
+      if (warningTimer) clearTimeout(warningTimer);
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      const modal = document.getElementById('sessionModal');
+      if (modal) modal.style.display = 'none';
+
+      if (getCookie('user_email')) {
+        warningTimer = setTimeout(() => {
+          showSessionWarning();
+        }, SESSION_TIMEOUT - WARNING_TIME);
+
+        sessionTimer = setTimeout(() => {
+          clearAllCookiesAndRedirect();
+        }, SESSION_TIMEOUT);
+
+        setCookie('last_activity', new Date().toISOString(), 7);
+      }
+    }
+
+    // Track user activity
+    function trackUserActivity() {
+      const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
+      
+      events.forEach(event => {
+        document.addEventListener(event, () => {
+          if (getCookie('user_email')) {
+            resetSessionTimer();
+          }
+        });
+      });
+    }
+
+    // Check session on page load
+    function checkSessionOnLoad() {
+      const lastActivity = getCookie('last_activity');
+      const userEmail = getCookie('user_email');
+      
+      if (userEmail && lastActivity) {
+        const now = new Date().getTime();
+        const lastActivityTime = new Date(lastActivity).getTime();
+        const timeDiff = now - lastActivityTime;
+        
+        if (timeDiff > SESSION_TIMEOUT) {
+          console.log('%c⏰ Session expired on page load!', 'color: #F44336; font-weight: bold;');
+          clearAllCookiesAndRedirect();
+          return true;
+        } else {
+          const remainingTime = SESSION_TIMEOUT - timeDiff;
+          
+          if (remainingTime <= WARNING_TIME) {
+            showSessionWarning();
+          } else {
+            warningTimer = setTimeout(() => {
+              showSessionWarning();
+            }, remainingTime - WARNING_TIME);
+          }
+          
+          sessionTimer = setTimeout(() => {
+            clearAllCookiesAndRedirect();
+          }, remainingTime);
+        }
+      } else if (!userEmail) {
+        window.location.href = 'https://dev.leadtech.in/survey/login-test';
+      }
+      return false;
+    }
+
     // ========== EXACT COOKIE FUNCTIONS FROM DASHBOARD ==========
     function setCookie(name, value, days = 7) {
       const date = new Date();
@@ -892,7 +1131,7 @@
       }
     }
 
-    // ========== PERMISSION CHECK ==========
+    // ========== PERMISSION CHECK WITH SESSION INIT ==========
     (function () {
       const userData = getUserData();
       const userType = userData.userType;
@@ -933,6 +1172,10 @@
         
         // Apply menu permissions based on user type
         applyMenuPermissions(userType);
+        
+        // ===== SESSION MANAGEMENT INITIALIZATION =====
+        checkSessionOnLoad();
+        trackUserActivity();
         
         // Render client field based on user data
         renderClientField();
@@ -993,23 +1236,17 @@
       if (alert) alert.classList.remove("show");
     }
 
-    // ========== LOGOUT FUNCTION - EXACT same as dashboard ==========
+    // ========== UPDATED LOGOUT FUNCTION ==========
     async function logout() {
       try {
         await fetch(`${window.location.origin}/api/method/logout`, { 
           method: 'GET' 
         });
         
-        document.cookie.split(";").forEach(function(c) { 
-          document.cookie = c
-            .replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
-        
-        window.location.href = `${window.location.origin}/survey/login-test`;
+        clearAllCookiesAndRedirect();
       } catch (error) {
         console.error('Logout error:', error);
-        window.location.href = `${window.location.origin}/survey/login-test`;
+        clearAllCookiesAndRedirect();
       }
     }
 
@@ -1048,6 +1285,22 @@
           link.setAttribute('data-title', span.textContent);
         }
       });
+
+      // ===== SESSION MODAL BUTTONS =====
+      const extendBtn = document.getElementById('extendSessionBtn');
+      const logoutBtn = document.getElementById('logoutSessionBtn');
+      
+      if (extendBtn) {
+        extendBtn.addEventListener('click', function() {
+          resetSessionTimer();
+        });
+      }
+      
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+          clearAllCookiesAndRedirect();
+        });
+      }
     });
 
     // ========== PROJECT ID PAGE SPECIFIC FUNCTIONS (PRESERVED) ==========
