@@ -52,7 +52,7 @@ function applyMenuPermissions(userType) {
   const projectIdLink = document.getElementById("project-id-link");
   const usersLink = document.getElementById("users-link");
 
-  console.log("Survey List - Applying permissions for user type:", userType);
+  //   console.log("Survey List - Applying permissions for user type:", userType);
 
   const userTypeLower = userType ? userType.toLowerCase() : "";
   const isGuest =
@@ -215,7 +215,7 @@ let currentProjectSurveys = null;
 
 // --- Function to fetch projects for logged‑in user and extract surveys for a given projectId ---
 async function loadProjectSurveys(projectId) {
-  console.log("Project id:", projectId);
+  //   console.log("Project id:", projectId);
   const email = getCookie("user_id");
   if (!email) {
     console.warn("No user_id cookie found – cannot filter by project.");
@@ -242,7 +242,7 @@ async function loadProjectSurveys(projectId) {
     const project = projects.find((p) => p.project_id === projectId);
     if (project && project.surveys) {
       currentProjectSurveys = project.surveys.map((name) => name.trim());
-      console.log(`Project "${projectId}" surveys:`, currentProjectSurveys);
+      //   console.log(`Project "${projectId}" surveys:`, currentProjectSurveys);
     } else {
       console.warn(
         `No project found with ID "${projectId}" or it has no surveys.`,
@@ -324,7 +324,7 @@ function fetchSurveys(query = "", sortBy = "creation desc") {
           );
         });
 
-        console.log(`Filtered ${surveyData.length} surveys for project`);
+        // console.log(`Filtered ${surveyData.length} surveys for project`);
       }
       // --------------------
       surveyTableBody.innerHTML = "";
@@ -481,10 +481,25 @@ function createFieldRow(fieldData, isNew = false) {
   // Check if label is long and has description
   const fullLabel = fieldData.label || "";
   const hasLongLabel = fullLabel.length > 140;
-  const displayLabel = hasLongLabel
-    ? fullLabel.substring(0, 137) + "..."
-    : fullLabel;
-  const description = fieldData.description || "";
+  let displayLabel = fullLabel;
+  let description = fieldData.description || "";
+
+  // Configuration: Set to false if you don't want "..." in truncated label
+  const ADD_ELLIPSIS = false; // CHANGE THIS to true if you want "..."
+
+  if (hasLongLabel) {
+    // Split: first 140 chars go to label, rest to description
+    if (ADD_ELLIPSIS) {
+      displayLabel = fullLabel.substring(0, 137) + "...";
+    } else {
+      displayLabel = fullLabel.substring(0, 140);
+    }
+
+    // If description is empty OR if the description is the full label (from previous save)
+    if (!description || description === fullLabel) {
+      description = fullLabel.substring(140);
+    }
+  }
 
   // Field name input (always show, disabled)
   const fieldnameInput = document.createElement("input");
@@ -499,9 +514,12 @@ function createFieldRow(fieldData, isNew = false) {
   labelInput.type = "text";
   labelInput.className = "field-input";
   labelInput.value = displayLabel;
-  labelInput.placeholder = "Field Label (max 140 chars)";
-  labelInput.maxLength = 140;
-  labelInput.addEventListener("input", function () {
+  labelInput.placeholder =
+    "Field Label (max 140 chars will auto-split to description)";
+  // Remove maxLength to allow capturing full text for splitting
+  // labelInput.maxLength = 140;  // COMMENT THIS OUT or remove it
+
+  labelInput.addEventListener("input", function (e) {
     // Auto-generate fieldname from label for new fields
     if (isNew && !fieldnameInput.value) {
       const labelText = this.value.trim();
@@ -510,6 +528,53 @@ function createFieldRow(fieldData, isNew = false) {
         fieldnameInput.value = generatedFieldname;
       }
     }
+
+    // Auto-split long labels
+    const currentLabel = this.value;
+    if (currentLabel.length > 140) {
+      let truncatedLabel;
+      const remainingText = currentLabel.substring(140);
+
+      if (ADD_ELLIPSIS) {
+        truncatedLabel = currentLabel.substring(0, 137) + "...";
+      } else {
+        truncatedLabel = currentLabel.substring(0, 140);
+      }
+
+      // Update label input with truncated version
+      this.value = truncatedLabel;
+
+      // Update description field with remaining text
+      const descriptionTextarea = row.querySelector(".description-input");
+      if (descriptionTextarea) {
+        const existingDesc = descriptionTextarea.value;
+        descriptionTextarea.value =
+          remainingText + (existingDesc ? "\n\n" + existingDesc : "");
+
+        // Visual feedback - highlight description field
+        descriptionTextarea.style.backgroundColor = "#fff3cd";
+        descriptionTextarea.style.borderColor = "#ffc107";
+        setTimeout(() => {
+          descriptionTextarea.style.backgroundColor = "";
+          descriptionTextarea.style.borderColor = "";
+        }, 2000);
+      }
+
+      // Show alert to user
+      showAlert(
+        `Label split: First 140 chars kept in label, remaining moved to description.`,
+      );
+    }
+  });
+
+  // Add paste event handler for better UX
+  labelInput.addEventListener("paste", function (e) {
+    // Small delay to let the paste complete before processing
+    setTimeout(() => {
+      // Trigger the input handler after paste completes
+      const event = new Event("input", { bubbles: true });
+      this.dispatchEvent(event);
+    }, 10);
   });
 
   // Get next field number helper
@@ -536,8 +601,16 @@ function createFieldRow(fieldData, isNew = false) {
   // Description field - ALWAYS show for ALL fields
   let descriptionInput = document.createElement("textarea");
   descriptionInput.className = "field-input description-input";
-  descriptionInput.value = description || (hasLongLabel ? fullLabel : "");
-  descriptionInput.placeholder = "Description (optional)";
+  // Set initial description value
+  if (description) {
+    descriptionInput.value = description;
+  } else if (hasLongLabel) {
+    // If label was split, description should contain the remaining part
+    descriptionInput.value = fullLabel.substring(140);
+  } else {
+    descriptionInput.value = "";
+  }
+  descriptionInput.placeholder = "Description (full text for long labels)";
   descriptionInput.rows = 3;
   descriptionInput.style.width = "100%";
   descriptionInput.style.marginTop = "8px";
@@ -547,6 +620,7 @@ function createFieldRow(fieldData, isNew = false) {
   descriptionInput.style.border = "1px solid #ced4da";
   descriptionInput.style.borderRadius = "4px";
   descriptionInput.style.resize = "vertical";
+
   // Field type display
   let fieldTypeElement;
   if (isNew) {
@@ -795,12 +869,18 @@ function addNewFieldRow() {
     true,
   );
 
-  // Insert before the add button
+  // CRITICAL FIX: Append to the BOTTOM instead of inserting before add button
   const addButton = container.querySelector(".add-field-btn");
   if (addButton) {
+    // Insert BEFORE the add button (so new field appears just above the button)
+    // But this makes new fields appear at the bottom of the list (above the Add button)
     container.insertBefore(newFieldRow, addButton);
+    console.log(
+      `✅ New field added at BOTTOM (position: ${container.querySelectorAll(".field-row").length - 1})`,
+    );
   } else {
     container.appendChild(newFieldRow);
+    console.log(`✅ New field appended to BOTTOM`);
   }
 
   // Auto-focus on the label input
@@ -949,19 +1029,31 @@ function saveUpdatedFields() {
     let label = fullLabel;
     let description = "";
 
-    // Handle long labels (> 140 characters) - Move to description
+    // Handle long labels (> 140 characters) - Split to description
     if (fullLabel.length > 140) {
-      description = fullLabel;
+      // First 140 chars go to label (with ...)
       label = fullLabel.substring(0, 137) + "...";
+
+      // Remaining chars go to description
+      const remainingText = fullLabel.substring(140);
+
+      // If there's already description content, combine
+      if (description) {
+        description = remainingText + "\n\n" + description;
+      } else {
+        description = remainingText;
+      }
+
       console.log(
-        `📝 Long label detected (${fullLabel.length} chars). Moved to description.`,
+        `📝 Long label detected (${fullLabel.length} chars). Split: Label=${label.substring(0, 50)}..., Description=${remainingText.substring(0, 50)}...`,
       );
     }
 
-    // Check if there's a description input in the UI
     const descriptionInput = row.querySelector("textarea.description-input");
-    if (descriptionInput && descriptionInput.value.trim()) {
+    if (descriptionInput) {
+      // Always set description to whatever is in the UI (could be empty string)
       description = descriptionInput.value.trim();
+      console.log(`📝 Description for ${fieldname}: "${description}"`);
     }
 
     // Get fieldtype
@@ -1006,6 +1098,30 @@ function saveUpdatedFields() {
       dependsOn = originalData.depends_on;
     }
 
+    // CRITICAL FIX: Calculate order index to maintain proper sequence
+    let orderIndex;
+    if (isNew) {
+      // New fields get a high order index to ensure they go to the bottom
+      // Use current timestamp + index to ensure unique ordering
+      orderIndex = Date.now() + index;
+    } else {
+      // For existing fields, extract the field number from fieldname
+      const match = originalData.fieldname?.match(/q_(\d+)/);
+      if (match) {
+        orderIndex = parseInt(match[1]);
+      } else if (originalData.fieldname?.startsWith("other_")) {
+        // For "other" fields, place them after their parent
+        const otherMatch = originalData.fieldname?.match(/other_q_(\d+)/);
+        if (otherMatch) {
+          orderIndex = parseInt(otherMatch[1]) + 0.5;
+        } else {
+          orderIndex = index;
+        }
+      } else {
+        orderIndex = index;
+      }
+    }
+
     allFields.push({
       fieldname: finalFieldname,
       originalFieldname: fieldname,
@@ -1018,13 +1134,29 @@ function saveUpdatedFields() {
       originalData,
       dependsOn,
       row,
+      orderIndex, // Store for sorting
     });
   });
+
+  // CRITICAL FIX: Sort fields to maintain correct order
+  // Existing fields come first (by orderIndex), new fields go to the end
+  allFields.sort((a, b) => {
+    // Existing fields come before new fields
+    if (!a.isNew && b.isNew) return -1;
+    if (a.isNew && !b.isNew) return 1;
+    // Both existing or both new, sort by orderIndex
+    return a.orderIndex - b.orderIndex;
+  });
+
+  console.log(
+    "Sorted fields order:",
+    allFields.map((f) => `${f.fieldname} (${f.isNew ? "NEW" : "EXISTING"})`),
+  );
 
   // Clear usedFieldnames for the second pass
   usedFieldnames.clear();
 
-  // Now process all fields
+  // Now process all fields in sorted order
   allFields.forEach((field) => {
     const {
       fieldname,
@@ -1064,9 +1196,9 @@ function saveUpdatedFields() {
     };
 
     // Add description if it exists
-    if (description) {
-      fieldData.description = description;
-    }
+    // if (description) {
+    fieldData.description = description;
+    // }
 
     // Add options if needed
     if (options) {
@@ -1125,6 +1257,7 @@ function saveUpdatedFields() {
       type: frappeFieldtype,
       options: fieldData.options,
       depends_on: fieldData.depends_on || "none",
+      position: update_fields.length,
     });
 
     // If this is a "Dropdown with Other" field, create the dependent "Other" field
@@ -1152,13 +1285,17 @@ function saveUpdatedFields() {
 
         update_fields.push(otherFieldData);
         console.log(
-          `✓ Adding dependent other field "${otherFieldname}" -> depends on "${fieldname}"`,
+          `✓ Adding dependent other field "${otherFieldname}" -> depends on "${fieldname}" at position ${update_fields.length}`,
         );
       }
     }
   });
 
   console.log("Total fields to update:", update_fields.length);
+  console.log(
+    "Final fields order:",
+    update_fields.map((f) => f.fieldname),
+  );
   console.log("Fields data:", update_fields);
 
   if (update_fields.length === 0) {
@@ -1170,10 +1307,8 @@ function saveUpdatedFields() {
 
   // Prepare API request
   const apiData = {
-    data: {
-      doctype_name: currentEditSurveyName,
-      update_fields: update_fields,
-    },
+    doctype_name: currentEditSurveyName,
+    update_fields: update_fields,
   };
 
   console.log("API Request Data:", JSON.stringify(apiData, null, 2));
@@ -1737,8 +1872,61 @@ function PopulateRows(name) {
       console.log("Fields Count:", data.data.fields.length);
       console.log("Fields Data:", data.data.fields);
 
-      // ✅ Render fields
-      data.data.fields.forEach((item, index) => {
+      // CRITICAL FIX: Filter and sort fields by fieldname number
+      const systemFields = [
+        "user",
+        "name",
+        "owner",
+        "creation",
+        "modified",
+        "modified_by",
+        "idx",
+        "docstatus",
+        "parent",
+        "parentfield",
+        "parenttype",
+        "creation_date",
+      ];
+
+      const skipFieldTypes = ["Link", "Image"];
+
+      let editableFields = data.data.fields.filter(
+        (field) =>
+          !systemFields.includes(field.fieldname) &&
+          !skipFieldTypes.includes(field.fieldtype),
+      );
+
+      // Sort fields by their number (q_1, q_2, etc.)
+      editableFields.sort((a, b) => {
+        let aNum = 9999,
+          bNum = 9999;
+
+        const aMatch = a.fieldname?.match(/q_(\d+)/);
+        const bMatch = b.fieldname?.match(/q_(\d+)/);
+
+        if (aMatch) aNum = parseInt(aMatch[1]);
+        if (bMatch) bNum = parseInt(bMatch[1]);
+
+        // Handle "other" fields (put them after their parent)
+        if (a.fieldname?.startsWith("other_")) {
+          const aOtherMatch = a.fieldname?.match(/other_q_(\d+)/);
+          if (aOtherMatch) aNum = parseInt(aOtherMatch[1]) + 0.5;
+        }
+        if (b.fieldname?.startsWith("other_")) {
+          const bOtherMatch = b.fieldname?.match(/other_q_(\d+)/);
+          if (bOtherMatch) bNum = parseInt(bOtherMatch[1]) + 0.5;
+        }
+
+        return aNum - bNum;
+      });
+
+      console.log(
+        "Sorted fields (by number):",
+        editableFields.map((f) => f.fieldname),
+      );
+
+      // ✅ Render fields in sorted order
+      editableFields.forEach((item, index) => {
         console.log(`--- FIELD ${index + 1} ---`, item);
 
         if (
@@ -1758,8 +1946,8 @@ function PopulateRows(name) {
           <td colspan="100%" style="color:red;text-align:center;padding:20px;">
             Failed to load survey data<br>
             ${error.message}
-          </td>
-        </tr>
+           </td>
+         </tr>
       `;
     });
 }
@@ -2538,32 +2726,57 @@ function newForm() {
 
 // Function to load form data from local storage
 function loadFormData() {
+  // Check if we're on a page that actually has the form builder elements
+  const nameInput = document.getElementById("name");
+  const tableBody = document.getElementById("tableBody");
+
+  // If these elements don't exist, we're on the wrong page - exit safely
+  if (!nameInput || !tableBody) {
+    console.log(
+      "loadFormData: Form builder elements not found on this page - skipping",
+    );
+    return;
+  }
+
   const savedData = localStorage.getItem("formData");
   if (savedData) {
     const formData = JSON.parse(savedData);
-    document.getElementById("name").value = formData.name;
+    nameInput.value = formData.name || "";
 
     // Load questions data into the form
     formData.questions.forEach((questionData, index) => {
       if (index > 0) addRow(); // Add rows as needed
-      const row = document.querySelectorAll("#tableBody tr")[index];
-      row.querySelector('select[name="inputType"]').value =
-        questionData.inputType;
-      updateFormat(row.querySelector('select[name="inputType"]'));
+      const rows = document.querySelectorAll("#tableBody tr");
+      if (index >= rows.length) return; // Safety check
 
-      if (questionData.questionName) {
-        row.querySelector('input[name="questionName"]').value =
-          questionData.questionName;
+      const row = rows[index];
+
+      // Safely set input type
+      const inputTypeSelect = row.querySelector('select[name="inputType"]');
+      if (inputTypeSelect) {
+        inputTypeSelect.value = questionData.inputType;
+        updateFormat(inputTypeSelect);
       }
 
+      // Safely set question name
+      const questionNameInput = row.querySelector('input[name="questionName"]');
+      if (questionNameInput && questionData.questionName) {
+        questionNameInput.value = questionData.questionName;
+      }
+
+      // Safely set options
       if (questionData.options) {
         const textarea = row.querySelector('textarea[name="options"]');
         if (textarea) textarea.value = questionData.options;
       }
+
+      // Safely set row options
       if (questionData.rowoptions) {
         const textarea = row.querySelector('textarea[name="rowoptions"]');
         if (textarea) textarea.value = questionData.rowoptions;
       }
+
+      // Safely set column options
       if (questionData.coloptions) {
         const textarea = row.querySelector('textarea[name="coloptions"]');
         if (textarea) textarea.value = questionData.coloptions;

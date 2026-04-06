@@ -1,42 +1,41 @@
-
-let start_survey = '';
-let end_survey = '';
+let start_survey = "";
+let end_survey = "";
 let survey_count = 0;
 
 // ==================== COOKIE HELPER FUNCTIONS ====================
 function getCookie(name) {
-    const cookieName = name + "=";
-    const cookies = document.cookie.split(';');
-    for(let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i];
-        while (cookie.charAt(0) == ' ') {
-            cookie = cookie.substring(1);
-        }
-        if (cookie.indexOf(cookieName) == 0) {
-            try {
-                return JSON.parse(cookie.substring(cookieName.length, cookie.length));
-            } catch {
-                return cookie.substring(cookieName.length, cookie.length);
-            }
-        }
+  const cookieName = name + "=";
+  const cookies = document.cookie.split(";");
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i];
+    while (cookie.charAt(0) == " ") {
+      cookie = cookie.substring(1);
     }
-    return null;
+    if (cookie.indexOf(cookieName) == 0) {
+      try {
+        return JSON.parse(cookie.substring(cookieName.length, cookie.length));
+      } catch {
+        return cookie.substring(cookieName.length, cookie.length);
+      }
+    }
+  }
+  return null;
 }
 
 function getUserData() {
-    const userType = getCookie('user_type') || '';
-    const userEmail = getCookie('user_email') || '';
-    const fullName = getCookie('full_name') || '';
-    const systemUser = getCookie('system_user') || '';
-    const userId = getCookie('user_id') || '';
-    
-    return {
-        userType: userType,
-        email: decodeURIComponent(userEmail),
-        fullName: decodeURIComponent(fullName),
-        systemUser: systemUser,
-        userId: decodeURIComponent(userId)
-    };
+  const userType = getCookie("user_type") || "";
+  const userEmail = getCookie("user_email") || "";
+  const fullName = getCookie("full_name") || "";
+  const systemUser = getCookie("system_user") || "";
+  const userId = getCookie("user_id") || "";
+
+  return {
+    userType: userType,
+    email: decodeURIComponent(userEmail),
+    fullName: decodeURIComponent(fullName),
+    systemUser: systemUser,
+    userId: decodeURIComponent(userId),
+  };
 }
 
 // ========== AUTHORIZATION CHECK USING COOKIES ==========
@@ -46,23 +45,31 @@ function getUserData() {
   const systemUser = userData.systemUser;
   const userId = userData.userId;
 
-  console.log("🔐 Authorization check - User data from cookies:", { fullName, systemUser, userId });
+  console.log("🔐 Authorization check - User data from cookies:", {
+    fullName,
+    systemUser,
+    userId,
+  });
 
   // Dynamic authorization based on cookie presence and validity
-  const isAuthorized = fullName && 
-                      systemUser === "yes" && 
-                      userId && 
-                      fullName !== 'undefined' && 
-                      fullName !== 'null' && 
-                      userId !== 'undefined' && 
-                      userId !== 'null';
+  const isAuthorized =
+    fullName &&
+    systemUser === "yes" &&
+    userId &&
+    fullName !== "undefined" &&
+    fullName !== "null" &&
+    userId !== "undefined" &&
+    userId !== "null";
 
-  console.log("Authorization result:", isAuthorized ? "✅ Authorized" : "❌ Unauthorized");
-      
+  console.log(
+    "Authorization result:",
+    isAuthorized ? "✅ Authorized" : "❌ Unauthorized",
+  );
+
   if (!isAuthorized) {
     document.getElementById("security").style.display = "flex";
     document.getElementById("to_show").style.display = "none";
-    
+
     setTimeout(function () {
       alert("Unauthorized access! Redirecting to the login page.");
       window.location.href = "https://dev.leadtech.in/survey/login-test";
@@ -70,17 +77,17 @@ function getUserData() {
   } else {
     document.getElementById("security").style.display = "none";
     document.getElementById("to_show").style.display = "block";
-    
+
     // Also update user display if elements exist
-    const userNameEl = document.getElementById('userName');
-    const userTypeBadge = document.getElementById('userTypeBadge');
-    
+    const userNameEl = document.getElementById("userName");
+    const userTypeBadge = document.getElementById("userTypeBadge");
+
     if (userNameEl) {
       userNameEl.textContent = fullName;
     }
-    
+
     if (userTypeBadge && userData.userType) {
-      userTypeBadge.textContent = userData.userType.replace('_', ' ');
+      userTypeBadge.textContent = userData.userType.replace("_", " ");
     }
   }
 })();
@@ -94,18 +101,18 @@ window.addEventListener("beforeunload", function (e) {
 // ==================== API CONFIGURATION ====================
 
 const API_BASE_URL = window.location.origin; // https://dev.leadtech.in
-const API_TOKEN = '405e0af40f3d04a:885b55cc21d37d2';
+const API_TOKEN = "405e0af40f3d04a:885b55cc21d37d2";
 
 // ==================== GLOBAL VARIABLES ====================
 
 let CLIENTS_DATA = [];
 let PROJECTS_DATA = [];
-let SELECTED_CLIENT = '';
-let SELECTED_PROJECT = '';
+let SELECTED_CLIENT = "";
+let SELECTED_PROJECT = "";
 
 // Form data variables
-let name = '';
-let header_text = '';
+let name = "";
+let header_text = "";
 let Wimage = {};
 let loop_survey = false;
 let location_mandatory = false;
@@ -115,198 +122,218 @@ let audio_mandatory = false;
 // ==================== CLIENT/PROJECT API FUNCTIONS ====================
 
 async function fetchClientsAndProjects() {
-    try {
-        const clientDropdown = document.getElementById('client-dropdown');
-        if (!clientDropdown) return;
-        
-        // Show loading state
-        clientDropdown.innerHTML = '<option value="">Loading clients...</option>';
-        
-        const userData = getUserData();
-        const userId = userData.userId;
-        
-        if (!userId) {
-            console.error('User ID not found in cookies');
-            clientDropdown.innerHTML = '<option value="">Please login first</option>';
-            return;
-        }
-        
-        console.log('Fetching data for user:', userId);
-        console.log('API URL:', `${API_BASE_URL}/api/method/election_management.election_management.get_client_dropdown.get_top_banner_clients_and_projects`);
-        
-        const response = await fetch(`${API_BASE_URL}/api/method/election_management.election_management.get_client_dropdown.get_top_banner_clients_and_projects`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${API_TOKEN}`,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                "email": userId
-            })
-        });
+  try {
+    const clientDropdown = document.getElementById("client-dropdown");
+    if (!clientDropdown) return;
 
-        const data = await response.json();
-        console.log('API Response:', data);
-        
-        if (data.message && data.message.status === "success") {
-            CLIENTS_DATA = data.message.clients || [];
-            PROJECTS_DATA = data.message.projects || [];
-            
-            console.log('Clients loaded:', CLIENTS_DATA.length);
-            console.log('Projects loaded:', PROJECTS_DATA.length);
-            
-            // Populate client dropdown
-            populateClientDropdown();
-            
-            // DON'T restore saved selections - start fresh
-            // restoreDropdownSelections(); // Commented out
-        } else {
-            console.error('Failed to fetch data:', data);
-            clientDropdown.innerHTML = '<option value="">Failed to load clients</option>';
-        }
-    } catch (error) {
-        console.error('Error fetching clients and projects:', error);
-        const clientDropdown = document.getElementById('client-dropdown');
-        if (clientDropdown) {
-            clientDropdown.innerHTML = '<option value="">Error loading data</option>';
-        }
+    // Show loading state
+    clientDropdown.innerHTML = '<option value="">Loading clients...</option>';
+
+    const userData = getUserData();
+    const userId = userData.userId;
+
+    if (!userId) {
+      console.error("User ID not found in cookies");
+      clientDropdown.innerHTML = '<option value="">Please login first</option>';
+      return;
     }
+
+    console.log("Fetching data for user:", userId);
+    console.log(
+      "API URL:",
+      `${API_BASE_URL}/api/method/election_management.election_management.get_client_dropdown.get_top_banner_clients_and_projects`,
+    );
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/method/election_management.election_management.get_client_dropdown.get_top_banner_clients_and_projects`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${API_TOKEN}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          email: userId,
+        }),
+      },
+    );
+
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    if (data.message && data.message.status === "success") {
+      CLIENTS_DATA = data.message.clients || [];
+      PROJECTS_DATA = data.message.projects || [];
+
+      console.log("Clients loaded:", CLIENTS_DATA.length);
+      console.log("Projects loaded:", PROJECTS_DATA.length);
+
+      // Populate client dropdown
+      populateClientDropdown();
+
+      // DON'T restore saved selections - start fresh
+      // restoreDropdownSelections(); // Commented out
+    } else {
+      console.error("Failed to fetch data:", data);
+      clientDropdown.innerHTML =
+        '<option value="">Failed to load clients</option>';
+    }
+  } catch (error) {
+    console.error("Error fetching clients and projects:", error);
+    const clientDropdown = document.getElementById("client-dropdown");
+    if (clientDropdown) {
+      clientDropdown.innerHTML = '<option value="">Error loading data</option>';
+    }
+  }
 }
 
 function populateClientDropdown() {
-    const clientDropdown = document.getElementById('client-dropdown');
-    if (!clientDropdown) return;
-    
-    clientDropdown.innerHTML = '<option value="">Select a client</option>';
-    
-    if (CLIENTS_DATA.length === 0) {
-        clientDropdown.innerHTML = '<option value="">No clients available</option>';
-        return;
-    }
-    
-    CLIENTS_DATA.forEach(client => {
-        const option = document.createElement('option');
-        option.value = client.client_id || client.name || client;
-        option.textContent = client.client_id || client.name || client;
-        clientDropdown.appendChild(option);
-    });
+  const clientDropdown = document.getElementById("client-dropdown");
+  if (!clientDropdown) return;
+
+  clientDropdown.innerHTML = '<option value="">Select a client</option>';
+
+  if (CLIENTS_DATA.length === 0) {
+    clientDropdown.innerHTML = '<option value="">No clients available</option>';
+    return;
+  }
+
+  CLIENTS_DATA.forEach((client) => {
+    const option = document.createElement("option");
+    option.value = client.client_id || client.name || client;
+    option.textContent = client.client_id || client.name || client;
+    clientDropdown.appendChild(option);
+  });
 }
 
 function populateProjectDropdown(clientId) {
-    const projectDropdown = document.getElementById('project-dropdown');
-    if (!projectDropdown) return;
-    
-    projectDropdown.innerHTML = '<option value="">Loading projects...</option>';
-    
-    if (!clientId) {
-        projectDropdown.innerHTML = '<option value="">Select client first</option>';
-        projectDropdown.disabled = true;
-        return;
-    }
-    
-    // Filter projects for the selected client
-    const clientProjects = PROJECTS_DATA.filter(project => {
-        const projectClient = project.client || project.client_id;
-        return projectClient === clientId;
+  const projectDropdown = document.getElementById("project-dropdown");
+  if (!projectDropdown) return;
+
+  projectDropdown.innerHTML = '<option value="">Loading projects...</option>';
+
+  if (!clientId) {
+    projectDropdown.innerHTML = '<option value="">Select client first</option>';
+    projectDropdown.disabled = true;
+    return;
+  }
+
+  // Filter projects for the selected client
+  const clientProjects = PROJECTS_DATA.filter((project) => {
+    const projectClient = project.client || project.client_id;
+    return projectClient === clientId;
+  });
+
+  console.log(`Projects for client ${clientId}:`, clientProjects.length);
+
+  if (clientProjects.length === 0) {
+    projectDropdown.innerHTML =
+      '<option value="">No projects available</option>';
+    projectDropdown.disabled = true;
+  } else {
+    projectDropdown.innerHTML = '<option value="">Select a project</option>';
+    clientProjects.forEach((project) => {
+      const option = document.createElement("option");
+      option.value = project.project_id || project.name || project;
+      option.textContent = project.project_id || project.name || project;
+      projectDropdown.appendChild(option);
     });
-    
-    console.log(`Projects for client ${clientId}:`, clientProjects.length);
-    
-    if (clientProjects.length === 0) {
-        projectDropdown.innerHTML = '<option value="">No projects available</option>';
-        projectDropdown.disabled = true;
-    } else {
-        projectDropdown.innerHTML = '<option value="">Select a project</option>';
-        clientProjects.forEach(project => {
-            const option = document.createElement('option');
-            option.value = project.project_id || project.name || project;
-            option.textContent = project.project_id || project.name || project;
-            projectDropdown.appendChild(option);
-        });
-        projectDropdown.disabled = false;
-    }
+    projectDropdown.disabled = false;
+  }
 }
 
 function onClientChange() {
-    const clientDropdown = document.getElementById('client-dropdown');
-    if (!clientDropdown) return;
-    
-    SELECTED_CLIENT = clientDropdown.value;
-    console.log('Selected client:', SELECTED_CLIENT);
-    
-    // Save to localStorage
-    if (SELECTED_CLIENT) {
-        localStorage.setItem('selectedClient', SELECTED_CLIENT);
-    } else {
-        localStorage.removeItem('selectedClient');
-    }
-    
-    // Update project dropdown
-    populateProjectDropdown(SELECTED_CLIENT);
-    
-    // Reset project selection
-    const projectDropdown = document.getElementById('project-dropdown');
-    if (projectDropdown) {
-        projectDropdown.value = '';
-    }
-    SELECTED_PROJECT = '';
-    localStorage.removeItem('selectedProject');
+  const clientDropdown = document.getElementById("client-dropdown");
+  if (!clientDropdown) return;
+
+  SELECTED_CLIENT = clientDropdown.value;
+  console.log("Selected client:", SELECTED_CLIENT);
+
+  // Save to localStorage
+  if (SELECTED_CLIENT) {
+    localStorage.setItem("selectedClient", SELECTED_CLIENT);
+  } else {
+    localStorage.removeItem("selectedClient");
+  }
+
+  // Update project dropdown
+  populateProjectDropdown(SELECTED_CLIENT);
+
+  // Reset project selection
+  const projectDropdown = document.getElementById("project-dropdown");
+  if (projectDropdown) {
+    projectDropdown.value = "";
+  }
+  SELECTED_PROJECT = "";
+  localStorage.removeItem("selectedProject");
 }
 
 function onProjectChange() {
-    const projectDropdown = document.getElementById('project-dropdown');
-    if (!projectDropdown) return;
-    
-    SELECTED_PROJECT = projectDropdown.value;
-    console.log('Selected project:', SELECTED_PROJECT);
-    
-    // Save to localStorage
-    if (SELECTED_PROJECT) {
-        localStorage.setItem('selectedProject', SELECTED_PROJECT);
-    } else {
-        localStorage.removeItem('selectedProject');
-    }
+  const projectDropdown = document.getElementById("project-dropdown");
+  if (!projectDropdown) return;
+
+  SELECTED_PROJECT = projectDropdown.value;
+  console.log("Selected project:", SELECTED_PROJECT);
+
+  // Save to localStorage
+  if (SELECTED_PROJECT) {
+    localStorage.setItem("selectedProject", SELECTED_PROJECT);
+  } else {
+    localStorage.removeItem("selectedProject");
+  }
 }
 
-async function saveSurveyToAPI(surveyName, projectId, startDate, endDate, count) {
-    try {
-        console.log('Saving survey to API:', { 
-            surveyName, 
-            projectId,
-            start_survey: startDate,
-            end_survey: endDate,
-            survey_count: count
-        });
-        
-        const response = await fetch(`${API_BASE_URL}/api/method/election_management.election_management.put_project_survey.add_survey_to_project`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${API_TOKEN}`,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                "project_id": projectId,
-                "name1": surveyName,
-                "start_survey": startDate,
-                "end_survey": endDate,
-                "survey_count": parseInt(count, 10) // Ensure it's an integer
-            })
-        });
+async function saveSurveyToAPI(
+  surveyName,
+  projectId,
+  startDate,
+  endDate,
+  count,
+) {
+  try {
+    console.log("Saving survey to API:", {
+      surveyName,
+      projectId,
+      start_survey: startDate,
+      end_survey: endDate,
+      survey_count: count,
+    });
 
-        const data = await response.json();
-        console.log('Survey saved to API response:', data);
-        
-        if (data.message && data.message.status === "success") {
-            return { success: true, data: data.message };
-        } else {
-            return { success: false, error: data.message || data._error_message || 'Unknown error' };
-        }
-    } catch (error) {
-        console.error('Error saving survey to API:', error);
-        return { success: false, error: error.message };
+    const response = await fetch(
+      `${API_BASE_URL}/api/method/election_management.election_management.put_project_survey.add_survey_to_project`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${API_TOKEN}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          project_id: projectId,
+          name1: surveyName,
+          start_survey: startDate,
+          end_survey: endDate,
+          survey_count: parseInt(count, 10), // Ensure it's an integer
+        }),
+      },
+    );
+
+    const data = await response.json();
+    console.log("Survey saved to API response:", data);
+
+    if (data.message && data.message.status === "success") {
+      return { success: true, data: data.message };
+    } else {
+      return {
+        success: false,
+        error: data.message || data._error_message || "Unknown error",
+      };
     }
+  } catch (error) {
+    console.error("Error saving survey to API:", error);
+    return { success: false, error: error.message };
+  }
 }
 
 // ==================== FILE UPLOAD FUNCTION ====================
@@ -320,7 +347,7 @@ async function uploadFile(file, fileName) {
     const response = await fetch(`${API_BASE_URL}/api/method/upload_file`, {
       method: "POST",
       headers: {
-        "Authorization": `Token ${API_TOKEN}`,
+        Authorization: `Token ${API_TOKEN}`,
       },
       body: formData,
     });
@@ -331,12 +358,12 @@ async function uploadFile(file, fileName) {
     }
 
     const responseData = await response.json();
-    console.log('Upload response:', responseData);
-    
+    console.log("Upload response:", responseData);
+
     if (responseData.message && responseData.message.file_url) {
       return {
         url: responseData.message.file_url,
-        name: fileName
+        name: fileName,
       };
     } else {
       throw new Error("File URL not found in response");
@@ -371,7 +398,7 @@ function PopulateRows(name) {
     fetch(`${API_BASE_URL}/api/resource/DocType/${name}?fields=["*"]`, {
       method: "GET",
       headers: {
-        "Authorization": `Token ${API_TOKEN}`,
+        Authorization: `Token ${API_TOKEN}`,
         "Content-Type": "application/json",
       },
     })
@@ -398,7 +425,7 @@ function PopulateRows(name) {
 function addRow2(data) {
   const tableBodysolid = document.querySelector("#tableBody");
   if (!tableBodysolid) return;
-  
+
   const newRow = document.createElement("tr");
   newRow.classList.add("draggable");
   newRow.draggable = true;
@@ -513,12 +540,16 @@ function addRow2(data) {
   // Set the question label if provided
   setTimeout(() => {
     const formatCell = newRow.querySelector(".formatCell");
-    const questionInput = formatCell ? formatCell.querySelector('input[name="questionName"]') : null;
+    const questionInput = formatCell
+      ? formatCell.querySelector('input[name="questionName"]')
+      : null;
     if (questionInput && data.label) {
       questionInput.value = data.label || "";
     }
 
-    const optionsTextarea = formatCell ? formatCell.querySelector('textarea[name="options"]') : null;
+    const optionsTextarea = formatCell
+      ? formatCell.querySelector('textarea[name="options"]')
+      : null;
     if (optionsTextarea && data.options) {
       optionsTextarea.value = data.options;
     }
@@ -528,7 +559,7 @@ function addRow2(data) {
 function updateFormat2(selectElement) {
   const formatCell = selectElement.closest("tr").querySelector(".formatCell");
   if (!formatCell) return;
-  
+
   const selectedType = selectElement.value;
 
   formatCell.innerHTML = "";
@@ -562,17 +593,20 @@ function updateFormat2(selectElement) {
 // ==================== FUNCTION TO ENSURE OTHERS IN OPTIONS ====================
 function ensureOthersInOptions(optionsTextarea) {
   if (!optionsTextarea) return;
-  
+
   let options = optionsTextarea.value;
-  let optionsArray = options.split('\n').map(opt => opt.trim()).filter(opt => opt !== '');
-  
+  let optionsArray = options
+    .split("\n")
+    .map((opt) => opt.trim())
+    .filter((opt) => opt !== "");
+
   // Check if "Others" already exists (case insensitive)
-  const hasOthers = optionsArray.some(opt => opt.toLowerCase() === 'others');
-  
+  const hasOthers = optionsArray.some((opt) => opt.toLowerCase() === "others");
+
   if (!hasOthers && optionsArray.length > 0) {
     // Add "Others" at the end
-    optionsArray.push('Others');
-    optionsTextarea.value = optionsArray.join('\n');
+    optionsArray.push("Others");
+    optionsTextarea.value = optionsArray.join("\n");
   }
 }
 
@@ -588,7 +622,8 @@ function preview() {
   const rows = document.querySelectorAll("#tableBody tr");
 
   rows.forEach((row) => {
-    const inputType = row.querySelector('select[name="inputType"]')?.value || "";
+    const inputType =
+      row.querySelector('select[name="inputType"]')?.value || "";
     const questionName =
       row.querySelector('input[name="questionName"]')?.value || "";
     const optionsText =
@@ -611,27 +646,29 @@ function preview() {
 
   tableData.forEach((item, index) => {
     if (!item.questionName) return;
-    
+
     switch (item.inputType) {
       case "drop_down":
       case "drop_down_other":
         let dropDownOptions = item.options
           .split("\n")
           .map((option) => option.trim())
-          .filter(option => option);
-        
+          .filter((option) => option);
+
         // For drop_down_other, ensure "Others" is in the options
         if (item.inputType === "drop_down_other") {
-          const hasOthers = dropDownOptions.some(opt => opt.toLowerCase() === 'others');
+          const hasOthers = dropDownOptions.some(
+            (opt) => opt.toLowerCase() === "others",
+          );
           if (!hasOthers) {
-            dropDownOptions.push('Others');
+            dropDownOptions.push("Others");
           }
         }
-        
+
         const optionsHtml = dropDownOptions
           .map((option) => `<option value="${option}">${option}</option>`)
           .join("");
-        
+
         html += `
           <div class="form-group" style="margin-bottom:15px; border:1px solid #eee; padding:15px; border-radius:5px;" id="preview-group-${index}">
             <label style="display:block; margin-bottom:5px; font-weight:600;">${item.questionName}</label>
@@ -740,24 +777,30 @@ function preview() {
       case "radio_button_other":
         let radioOptions = item.options
           .split("\n")
-          .map(option => option.trim())
-          .filter(option => option);
-        
+          .map((option) => option.trim())
+          .filter((option) => option);
+
         // For radio_button_other, ensure "Others" is in the options
         if (item.inputType === "radio_button_other") {
-          const hasOthers = radioOptions.some(opt => opt.toLowerCase() === 'others');
+          const hasOthers = radioOptions.some(
+            (opt) => opt.toLowerCase() === "others",
+          );
           if (!hasOthers) {
-            radioOptions.push('Others');
+            radioOptions.push("Others");
           }
         }
-        
-        const radioHtml = radioOptions.map((option) => `
+
+        const radioHtml = radioOptions
+          .map(
+            (option) => `
           <div style="margin:5px 0;">
             <input type="radio" name="preview_radio_${index}" value="${option}" id="radio_${index}_${option}">
             <label for="radio_${index}_${option}">${option}</label>
           </div>
-        `).join("");
-        
+        `,
+          )
+          .join("");
+
         html += `
           <div class="form-group" style="margin-bottom:15px; border:1px solid #eee; padding:15px; border-radius:5px;" id="preview-group-${index}">
             <label style="display:block; margin-bottom:5px; font-weight:600;">${item.questionName}</label>
@@ -773,15 +816,15 @@ function preview() {
       case "checkbox_list":
         const checkButtonOptions = item.options
           .split("\n")
-          .map(option => option.trim())
-          .filter(option => option)
+          .map((option) => option.trim())
+          .filter((option) => option)
           .map(
             (option) => `
               <div style="margin:5px 0;">
                 <input type="checkbox" name="preview_check" value="${option}" id="check_${option}">
                 <label for="check_${option}">${option}</label>
               </div>
-            `
+            `,
           )
           .join("");
 
@@ -812,47 +855,54 @@ function preview() {
   if (modalContent) {
     modalContent.innerHTML = html;
   }
-  
+
   const previewModal = document.getElementById("previewModal");
   if (previewModal) {
     previewModal.style.display = "flex";
-    
+
     // Add event listeners for "Others" dropdowns after modal is shown
     setTimeout(() => {
       // For dropdowns
-      document.querySelectorAll('.preview-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
+      document.querySelectorAll(".preview-dropdown").forEach((dropdown) => {
+        dropdown.addEventListener("change", function () {
           const index = this.dataset.questionIndex;
-          const container = document.getElementById(`others-container-${index}`);
+          const container = document.getElementById(
+            `others-container-${index}`,
+          );
           if (container) {
             // Show container only if "Others" is selected
-            container.style.display = this.value === 'Others' ? 'block' : 'none';
+            container.style.display =
+              this.value === "Others" ? "block" : "none";
           }
         });
       });
-      
+
       // For radio buttons
-      document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('change', function() {
+      document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
           // Find the parent group
-          const group = this.closest('.form-group');
+          const group = this.closest(".form-group");
           if (group) {
             // Extract index from group ID
             const groupId = group.id;
-            const index = groupId.split('-').pop();
-            
+            const index = groupId.split("-").pop();
+
             // Find the corresponding others container
-            const container = document.getElementById(`radio-others-container-${index}`);
+            const container = document.getElementById(
+              `radio-others-container-${index}`,
+            );
             if (container) {
               // Check if any radio with value "Others" in this group is checked
-              const othersChecked = group.querySelectorAll('input[type="radio"]');
+              const othersChecked = group.querySelectorAll(
+                'input[type="radio"]',
+              );
               let isOthersSelected = false;
-              othersChecked.forEach(r => {
-                if (r.checked && r.value === 'Others') {
+              othersChecked.forEach((r) => {
+                if (r.checked && r.value === "Others") {
                   isOthersSelected = true;
                 }
               });
-              container.style.display = isOthersSelected ? 'block' : 'none';
+              container.style.display = isOthersSelected ? "block" : "none";
             }
           }
         });
@@ -875,7 +925,7 @@ function showRecordOption() {
 function toggleRecording() {
   let startButton = document.getElementById("startRecording");
   if (!startButton) return;
-  
+
   let isRecording = startButton.textContent === "Stop Recording";
 
   if (isRecording) {
@@ -891,7 +941,7 @@ function toggleRecording() {
 function updateFormat(selectElement) {
   const formatCell = selectElement.closest("tr").querySelector(".formatCell");
   if (!formatCell) return;
-  
+
   const selectedType = selectElement.value;
 
   formatCell.innerHTML =
@@ -908,16 +958,21 @@ function updateFormat(selectElement) {
     case "radio_button_other":
       formatCell.innerHTML +=
         '<br><textarea name="options" placeholder="Options (one per line)" style="width:100%;" rows="3"></textarea>';
-      
+
       // For drop_down_other and radio_button_other, add event listener to ensure "Others" is included
-      if (selectedType === "drop_down_other" || selectedType === "radio_button_other") {
+      if (
+        selectedType === "drop_down_other" ||
+        selectedType === "radio_button_other"
+      ) {
         setTimeout(() => {
-          const optionsTextarea = formatCell.querySelector('textarea[name="options"]');
+          const optionsTextarea = formatCell.querySelector(
+            'textarea[name="options"]',
+          );
           if (optionsTextarea) {
             // Remove any existing event listener and add new one
-            optionsTextarea.removeEventListener('blur', handleOthersBlur);
-            optionsTextarea.addEventListener('blur', handleOthersBlur);
-            
+            optionsTextarea.removeEventListener("blur", handleOthersBlur);
+            optionsTextarea.addEventListener("blur", handleOthersBlur);
+
             // Check if "Others" already exists when the field is created
             ensureOthersInOptions(optionsTextarea);
           }
@@ -948,7 +1003,7 @@ function updateFormat(selectElement) {
 function addRow() {
   const tableBody = document.querySelector("#tableBody");
   if (!tableBody) return;
-  
+
   const newRow = document.createElement("tr");
   newRow.classList.add("draggable");
   newRow.draggable = true;
@@ -1017,99 +1072,103 @@ function newForm() {
   localStorage.removeItem("formData");
   localStorage.removeItem("selectedClient");
   localStorage.removeItem("selectedProject");
-  
+
   // Clear sessionStorage
-  sessionStorage.removeItem('newForm');
-  sessionStorage.removeItem('editingForm');
-  
+  sessionStorage.removeItem("newForm");
+  sessionStorage.removeItem("editingForm");
+
   // Reset all global variables
-  SELECTED_CLIENT = '';
-  SELECTED_PROJECT = '';
-  name = '';
-  header_text = '';
+  SELECTED_CLIENT = "";
+  SELECTED_PROJECT = "";
+  name = "";
+  header_text = "";
   Wimage = {};
-  start_survey = '';      // NEW
-  end_survey = '';        // NEW
-  survey_count = 0;       // NEW
+  start_survey = ""; // NEW
+  end_survey = ""; // NEW
+  survey_count = 0; // NEW
   location_mandatory = false;
   audio_mandatory = false;
   unique_number = false;
-  
+
   // Reset the entire form
-  const form = document.getElementById('createSurveyForm');
+  const form = document.getElementById("createSurveyForm");
   if (form) form.reset();
-  
+
   // Manually clear all input fields
   const nameField = document.getElementById("name");
   if (nameField) {
     nameField.value = "";
     nameField.defaultValue = "";
   }
-  
+
   document.getElementById("hypertext").value = "";
   document.getElementById("hypertext").defaultValue = "";
-  
+
   // Clear new fields
   const startField = document.getElementById("start_survey");
   if (startField) {
     startField.value = "";
     startField.defaultValue = "";
   }
-  
+
   const endField = document.getElementById("end_survey");
   if (endField) {
     endField.value = "";
     endField.defaultValue = "";
   }
-  
+
   const countField = document.getElementById("survey_count");
   if (countField) {
     countField.value = "";
     countField.defaultValue = "";
   }
-  
+
   // Clear file input
-  const fileInput = document.getElementById('welcome-image');
-  if (fileInput) fileInput.value = '';
-  
+  const fileInput = document.getElementById("welcome-image");
+  if (fileInput) fileInput.value = "";
+
   // Uncheck all checkboxes
-  document.getElementById('location-capture').checked = false;
-  document.getElementById('audio-capture').checked = false;
-  document.getElementById('unique_number').checked = false;
-  
+  document.getElementById("location-capture").checked = false;
+  document.getElementById("audio-capture").checked = false;
+  document.getElementById("unique_number").checked = false;
+
   // Uncheck all radio buttons
-  document.querySelectorAll('input[name="slayout"]').forEach(radio => {
+  document.querySelectorAll('input[name="slayout"]').forEach((radio) => {
     radio.checked = false;
   });
-  
+
   // Reset client dropdown to show "Select a client"
-  const clientDropdown = document.getElementById('client-dropdown');
+  const clientDropdown = document.getElementById("client-dropdown");
   if (clientDropdown) {
     clientDropdown.value = "";
     // Force reload clients from API
     fetchClientsAndProjects();
   }
-  
+
   // Reset project dropdown
-  const projectDropdown = document.getElementById('project-dropdown');
+  const projectDropdown = document.getElementById("project-dropdown");
   if (projectDropdown) {
     projectDropdown.innerHTML = '<option value="">Select client first</option>';
     projectDropdown.disabled = true;
   }
-  
+
   // Clear the question table
   const tableBody = document.querySelector("#tableBody");
   if (tableBody) {
     tableBody.innerHTML = "";
   }
-  
+
   // Ensure screen1 is visible and screen2 is hidden
   document.querySelector(".screen1").style.display = "block";
   document.querySelector(".screen2").style.display = "none";
-  
+
   // Add a timestamp to URL to prevent caching
-  window.history.replaceState({}, document.title, window.location.pathname + '?new=' + Date.now());
-  
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname + "?new=" + Date.now(),
+  );
+
   console.log("New form created - all data cleared");
 }
 
@@ -1126,17 +1185,20 @@ function loadFormData() {
       // Restore global variables
       if (formData.header) header_text = formData.header;
       if (formData.Wel_image) Wimage = formData.Wel_image;
-      if (formData.loc_mandatory !== undefined) location_mandatory = formData.loc_mandatory;
-      if (formData.audio_mandatory !== undefined) audio_mandatory = formData.audio_mandatory;
-      if (formData.unique_number !== undefined) unique_number = formData.unique_number;
+      if (formData.loc_mandatory !== undefined)
+        location_mandatory = formData.loc_mandatory;
+      if (formData.audio_mandatory !== undefined)
+        audio_mandatory = formData.audio_mandatory;
+      if (formData.unique_number !== undefined)
+        unique_number = formData.unique_number;
       if (formData.client_id) SELECTED_CLIENT = formData.client_id;
       if (formData.project_id) SELECTED_PROJECT = formData.project_id;
 
       // Restore checkboxes
-      const locationCheck = document.getElementById('location-capture');
-      const audioCheck = document.getElementById('audio-capture');
-      const uniqueCheck = document.getElementById('unique_number');
-      
+      const locationCheck = document.getElementById("location-capture");
+      const audioCheck = document.getElementById("audio-capture");
+      const uniqueCheck = document.getElementById("unique_number");
+
       if (locationCheck) locationCheck.checked = location_mandatory;
       if (audioCheck) audioCheck.checked = audio_mandatory;
       if (uniqueCheck) uniqueCheck.checked = unique_number;
@@ -1148,7 +1210,7 @@ function loadFormData() {
         if (tableBody) {
           tableBody.innerHTML = "";
         }
-        
+
         formData.questions.forEach((questionData, index) => {
           if (index > 0) addRow();
           // Small delay to ensure DOM is updated
@@ -1160,27 +1222,38 @@ function loadFormData() {
               if (selectEl) {
                 selectEl.value = questionData.inputType;
                 updateFormat(selectEl);
-                
-                setTimeout(() => {
-                  const questionInput = row.querySelector('input[name="questionName"]');
-                  if (questionInput) questionInput.value = questionData.questionName || "";
 
-                  const optionsTextarea = row.querySelector('textarea[name="options"]');
+                setTimeout(() => {
+                  const questionInput = row.querySelector(
+                    'input[name="questionName"]',
+                  );
+                  if (questionInput)
+                    questionInput.value = questionData.questionName || "";
+
+                  const optionsTextarea = row.querySelector(
+                    'textarea[name="options"]',
+                  );
                   if (optionsTextarea && questionData.options) {
                     optionsTextarea.value = questionData.options;
                   }
-                  
-                  const rowoptionsTextarea = row.querySelector('textarea[name="rowoptions"]');
+
+                  const rowoptionsTextarea = row.querySelector(
+                    'textarea[name="rowoptions"]',
+                  );
                   if (rowoptionsTextarea && questionData.rowoptions) {
                     rowoptionsTextarea.value = questionData.rowoptions;
                   }
-                  
-                  const coloptionsTextarea = row.querySelector('textarea[name="coloptions"]');
+
+                  const coloptionsTextarea = row.querySelector(
+                    'textarea[name="coloptions"]',
+                  );
                   if (coloptionsTextarea && questionData.coloptions) {
                     coloptionsTextarea.value = questionData.coloptions;
                   }
-                  
-                  const mandatoryCheck = row.querySelector('input[name="mandatory"]');
+
+                  const mandatoryCheck = row.querySelector(
+                    'input[name="mandatory"]',
+                  );
                   if (mandatoryCheck && questionData.mandatory) {
                     mandatoryCheck.checked = questionData.mandatory;
                   }
@@ -1191,7 +1264,7 @@ function loadFormData() {
         });
       }
     } catch (e) {
-      console.error('Error loading form data:', e);
+      console.error("Error loading form data:", e);
     }
   }
 }
@@ -1222,7 +1295,8 @@ function saveForm() {
   const rows = document.querySelectorAll("#tableBody tr");
 
   rows.forEach((row) => {
-    const inputType = row.querySelector('select[name="inputType"]')?.value || "";
+    const inputType =
+      row.querySelector('select[name="inputType"]')?.value || "";
     const questionName =
       row.querySelector('input[name="questionName"]')?.value || "";
     const optionsText =
@@ -1231,7 +1305,8 @@ function saveForm() {
       row.querySelector('textarea[name="rowoptions"]')?.value || "";
     const coloptionsText =
       row.querySelector('textarea[name="coloptions"]')?.value || "";
-    const mandatory = row.querySelector('input[name="mandatory"]')?.checked || false;
+    const mandatory =
+      row.querySelector('input[name="mandatory"]')?.checked || false;
 
     if (questionName) {
       tableData.push({
@@ -1256,25 +1331,25 @@ function saveForm() {
     audio_mandatory: audio_mandatory,
     unique_number: unique_number,
     client_id: SELECTED_CLIENT,
-    project_id: SELECTED_PROJECT
+    project_id: SELECTED_PROJECT,
   };
 
   localStorage.setItem("formData", JSON.stringify(formData));
-  
+
   const overlay = document.getElementById("overlay");
   const popup = document.getElementById("popup");
-  
+
   if (overlay) overlay.style.display = "block";
   if (popup) popup.style.display = "block";
-  
+
   updateButtonDisplay();
-  showAlert('Form saved successfully!');
+  showAlert("Form saved successfully!");
 }
 
 function closePopup() {
   const overlay = document.getElementById("overlay");
   const popup = document.getElementById("popup");
-  
+
   if (overlay) overlay.style.display = "none";
   if (popup) popup.style.display = "none";
 }
@@ -1304,7 +1379,7 @@ function splitLabelAndDescription(label, maxLength = 140) {
 //     alert("No data to publish. Please save the form first.");
 //     return;
 //   }
-  
+
 //   const data = JSON.parse(dataString);
 
 //   if (!data || !Array.isArray(data.questions)) {
@@ -1417,7 +1492,7 @@ function splitLabelAndDescription(label, maxLength = 140) {
 //         fieldType = "Select";
 //         options = questionData.options || "";
 //         break;
-        
+
 //       case "drop_down_other":
 //         fieldType = "Select";
 //         // Ensure "Others" is in options
@@ -1429,12 +1504,12 @@ function splitLabelAndDescription(label, maxLength = 140) {
 //         }
 //         options = dropDownOptions.join("\n");
 //         break;
-        
+
 //       case "radio_button":
 //         fieldType = "Select";
 //         options = questionData.options || "";
 //         break;
-        
+
 //       case "radio_button_other":
 //         fieldType = "Select";
 //         // Ensure "Others" is in options
@@ -1446,12 +1521,12 @@ function splitLabelAndDescription(label, maxLength = 140) {
 //         }
 //         options = radioOptions.join("\n");
 //         break;
-        
+
 //       case "checkbox_list":
 //         fieldType = "MultiSelect";
 //         options = questionData.options || "";
 //         break;
-        
+
 //       case "text_block":
 //         fieldType = "Heading";
 //         break;
@@ -1612,12 +1687,12 @@ function splitLabelAndDescription(label, maxLength = 140) {
 //       showAlert("Form published successfully!");
 //       createUserPermission(formName);
 //       closePopup();
-      
+
 //       // Update publish status
 //       const formData = JSON.parse(localStorage.getItem("formData") || "{}");
 //       formData.isPublish = "1";
 //       localStorage.setItem("formData", JSON.stringify(formData));
-      
+
 //       // 🔴 KEY CHANGE: Redirect to fresh create page after successful publish
 //       setTimeout(() => {
 //         newForm(); // Call the existing newForm function to clear everything
@@ -1634,7 +1709,7 @@ function publishForm() {
     alert("No data to publish. Please save the form first.");
     return;
   }
-  
+
   const data = JSON.parse(dataString);
 
   if (!data || !Array.isArray(data.questions)) {
@@ -1709,13 +1784,6 @@ function publishForm() {
     options: "",
     reqd: 1,
   });
-   dynamicFields.push({
-    fieldname: "enable_disable",
-    fieldtype: "Check",
-    label: "Enable Disable",
-    options: "",
-    reqd: 0,
-  });
 
   // Always add audio field (mandatory)
   dynamicFields.push({
@@ -1726,6 +1794,22 @@ function publishForm() {
     reqd: 1,
   });
 
+  dynamicFields.push({
+    fieldname: "survey_call_status",
+    fieldtype: "Select",
+    label: "Survey Call Status",
+    options:
+      "\nNo Call\nResponse\nCorrect\nPositive\nNegative\nNot Response\nNot Decide\nBusy\nCall Not Pick\nOut of Coverage\nSwitch Off\nNo Incoming Call\nInvalid No\nWrong No\nCalender Not Receive",
+    reqd: 1,
+  });
+  dynamicFields.push({
+    fieldname: "survey_call_remarks",
+    fieldtype: "Long Text",
+    label: "Survey Call Remarks",
+    options: "",
+    reqd: 1,
+  });
+
   // Process all questions
   data.questions.forEach((questionData, index) => {
     if (!questionData.questionName) return;
@@ -1733,7 +1817,9 @@ function publishForm() {
     let fieldType = "Data";
     let options = "";
     const reqd = questionData.mandatory ? 1 : 0;
-    const { label, description } = splitLabelAndDescription(questionData.questionName);
+    const { label, description } = splitLabelAndDescription(
+      questionData.questionName,
+    );
     const fieldname = `q_${index + 1}`;
 
     // Map input types to Frappe fieldtypes
@@ -1750,16 +1836,22 @@ function publishForm() {
           reqd: reqd,
         });
         break;
-        
+
       case "drop_down_other":
         // First field: The dropdown with options + "Others"
-        let dropDownOptions = questionData.options ? questionData.options.split("\n") : [];
-        dropDownOptions = dropDownOptions.map(opt => opt.trim()).filter(opt => opt);
-        const hasOthers = dropDownOptions.some(opt => opt.toLowerCase() === 'others');
+        let dropDownOptions = questionData.options
+          ? questionData.options.split("\n")
+          : [];
+        dropDownOptions = dropDownOptions
+          .map((opt) => opt.trim())
+          .filter((opt) => opt);
+        const hasOthers = dropDownOptions.some(
+          (opt) => opt.toLowerCase() === "others",
+        );
         if (!hasOthers) {
-          dropDownOptions.push('Others');
+          dropDownOptions.push("Others");
         }
-        
+
         // Push the dropdown field
         dynamicFields.push({
           fieldname: fieldname,
@@ -1769,7 +1861,7 @@ function publishForm() {
           options: dropDownOptions.join("\n"),
           reqd: reqd,
         });
-        
+
         // Second field: The "Other" text input (Small Text field)
         dynamicFields.push({
           fieldname: "other_" + fieldname,
@@ -1780,7 +1872,7 @@ function publishForm() {
           reqd: 0, // Usually not required
         });
         break;
-        
+
       case "radio_button":
         fieldType = "Select";
         options = questionData.options || "";
@@ -1793,16 +1885,22 @@ function publishForm() {
           reqd: reqd,
         });
         break;
-        
+
       case "radio_button_other":
         // First field: The radio options (as Select) with "Others"
-        let radioOptions = questionData.options ? questionData.options.split("\n") : [];
-        radioOptions = radioOptions.map(opt => opt.trim()).filter(opt => opt);
-        const hasOthersRadio = radioOptions.some(opt => opt.toLowerCase() === 'others');
+        let radioOptions = questionData.options
+          ? questionData.options.split("\n")
+          : [];
+        radioOptions = radioOptions
+          .map((opt) => opt.trim())
+          .filter((opt) => opt);
+        const hasOthersRadio = radioOptions.some(
+          (opt) => opt.toLowerCase() === "others",
+        );
         if (!hasOthersRadio) {
-          radioOptions.push('Others');
+          radioOptions.push("Others");
         }
-        
+
         // Push the radio/select field
         dynamicFields.push({
           fieldname: fieldname,
@@ -1812,7 +1910,7 @@ function publishForm() {
           options: radioOptions.join("\n"),
           reqd: reqd,
         });
-        
+
         // Second field: The "Other" text input
         dynamicFields.push({
           fieldname: "other_" + fieldname,
@@ -1823,7 +1921,7 @@ function publishForm() {
           reqd: 0,
         });
         break;
-        
+
       case "checkbox_list":
         fieldType = "MultiSelect";
         options = questionData.options || "";
@@ -1836,7 +1934,7 @@ function publishForm() {
           reqd: reqd,
         });
         break;
-        
+
       case "text_block":
         fieldType = "Heading";
         dynamicFields.push({
@@ -1913,7 +2011,8 @@ function publishForm() {
           description: description,
           options: options,
           reqd: reqd,
-          unique: data.unique_number ? 1 : 0
+          unique: data.unique_number ? 1 : 0,
+          length: 20,
         });
         break;
       case "date":
@@ -2052,7 +2151,7 @@ function publishForm() {
       options: "User",
       reqd: 1,
     },
-    ...dynamicFields
+    ...dynamicFields,
   ];
 
   const finalData = {
@@ -2090,17 +2189,20 @@ function publishForm() {
     ],
   };
 
-  console.log('Publishing form with data:', finalData);
+  console.log("Publishing form with data:", finalData);
 
-  fetch(`${API_BASE_URL}/api/method/leadtech_survey.leadtech_survey.create_survey_doctype.allow_doctype_creation`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Token ${API_TOKEN}`,
-      "Content-Type": "application/json",
-      "Accept": "application/json",
+  fetch(
+    `${API_BASE_URL}/api/method/leadtech_survey.leadtech_survey.create_survey_doctype.allow_doctype_creation`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${API_TOKEN}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(finalData),
     },
-    body: JSON.stringify(finalData),
-  })
+  )
     .then(async (res) => {
       if (!res.ok) {
         const errorText = await res.text();
@@ -2113,12 +2215,12 @@ function publishForm() {
       showAlert("Form published successfully!");
       createUserPermission(formName);
       closePopup();
-      
+
       // Update publish status
       const formData = JSON.parse(localStorage.getItem("formData") || "{}");
       formData.isPublish = "1";
       localStorage.setItem("formData", JSON.stringify(formData));
-      
+
       // Redirect to fresh create page after successful publish
       setTimeout(() => {
         newForm(); // Call the existing newForm function to clear everything
@@ -2186,10 +2288,10 @@ if (tableBody) {
 // ==================== EVENT LISTENERS ====================
 
 // File upload handler
-document.addEventListener('DOMContentLoaded', function() {
-  const welcomeImage = document.getElementById('welcome-image');
+document.addEventListener("DOMContentLoaded", function () {
+  const welcomeImage = document.getElementById("welcome-image");
   if (welcomeImage) {
-    welcomeImage.addEventListener('change', async function (event) {
+    welcomeImage.addEventListener("change", async function (event) {
       const fileInput = event.target;
 
       if (fileInput.files.length === 0) {
@@ -2199,85 +2301,98 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const file = fileInput.files[0];
       const fileName = file.name;
-      
+
       // Show file name in the UI (optional)
-      const fileLabel = document.querySelector('.file-name-label');
+      const fileLabel = document.querySelector(".file-name-label");
       if (fileLabel) {
         fileLabel.textContent = fileName;
       }
-      
+
       try {
         Wimage = await uploadFile(file, fileName);
-        console.log('File uploaded successfully:', Wimage);
-        showAlert('File uploaded successfully!');
+        console.log("File uploaded successfully:", Wimage);
+        showAlert("File uploaded successfully!");
       } catch (error) {
         console.error("Failed to upload file:", error);
-        alert('Failed to upload file: ' + error.message);
+        alert("Failed to upload file: " + error.message);
       }
     });
   }
 });
 
-
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('createSurveyForm');
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("createSurveyForm");
   if (form) {
-    form.addEventListener('submit', async function(event) {
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
-      
+
       const screen2 = document.querySelector(".screen2");
       const screen1 = document.querySelector(".screen1");
-      
+
       // Get form values
       name = document.getElementById("name").value.trim();
       header_text = document.getElementById("hypertext").value;
-      
+
       // Get new field values
-      start_survey = document.getElementById("start_survey")?.value || '';
-      end_survey = document.getElementById("end_survey")?.value || '';
+      start_survey = document.getElementById("start_survey")?.value || "";
+      end_survey = document.getElementById("end_survey")?.value || "";
       survey_count = document.getElementById("survey_count")?.value || 0;
-      
-      audio_mandatory = document.getElementById("audio-capture")?.checked || false;
-      location_mandatory = document.getElementById("location-capture")?.checked || false;
-      unique_number = document.getElementById("unique_number")?.checked || false;
-      
+
+      audio_mandatory =
+        document.getElementById("audio-capture")?.checked || false;
+      location_mandatory =
+        document.getElementById("location-capture")?.checked || false;
+      unique_number =
+        document.getElementById("unique_number")?.checked || false;
+
       // Get client and project values
       const clientId = document.getElementById("client-dropdown")?.value;
       const projectId = document.getElementById("project-dropdown")?.value;
-      
+
       // Validate required fields
       const errors = [];
       if (!name) errors.push("Survey Name is required");
       if (!clientId) errors.push("Please select a client");
       if (!projectId) errors.push("Please select a project");
-      
+
       // Validate new fields
       if (!start_survey) errors.push("Start Survey date is required");
       if (!end_survey) errors.push("End Survey date is required");
-      if (!survey_count || survey_count <= 0) errors.push("Survey Count must be a positive number");
-      
+      if (!survey_count || survey_count <= 0)
+        errors.push("Survey Count must be a positive number");
+
       // Validate date logic (end date should be after start date)
-      if (start_survey && end_survey && new Date(end_survey) < new Date(start_survey)) {
+      if (
+        start_survey &&
+        end_survey &&
+        new Date(end_survey) < new Date(start_survey)
+      ) {
         errors.push("End Survey date must be after Start Survey date");
       }
-      
+
       if (errors.length > 0) {
         alert(errors.join("\n"));
         return;
       }
-      
+
       // Show loading state
-      const saveBtn = document.querySelector('.save-btn');
+      const saveBtn = document.querySelector(".save-btn");
       if (!saveBtn) return;
-      
+
       const originalText = saveBtn.textContent;
-      saveBtn.textContent = 'Saving...';
+      saveBtn.textContent = "Saving...";
       saveBtn.disabled = true;
-      
+
       try {
         // Save to API first - PASS THE NEW FIELDS
-        const result = await saveSurveyToAPI(name, projectId, start_survey, end_survey, survey_count);
-        
+        const result = await saveSurveyToAPI(
+          name,
+          projectId,
+          start_survey,
+          end_survey,
+          survey_count,
+        );
+
         if (result.success) {
           // Save form data to localStorage (including new fields)
           const formData = {
@@ -2293,45 +2408,53 @@ document.addEventListener('DOMContentLoaded', function() {
             client_id: clientId,
             project_id: projectId,
             questions: [],
-            isPublish: "0"
+            isPublish: "0",
           };
-          
+
           // Merge with existing questions if any
-          const existingData = JSON.parse(localStorage.getItem('formData') || '{}');
+          const existingData = JSON.parse(
+            localStorage.getItem("formData") || "{}",
+          );
           if (existingData.questions) {
             formData.questions = existingData.questions;
           }
-          
-          localStorage.setItem('formData', JSON.stringify(formData));
-          
+
+          localStorage.setItem("formData", JSON.stringify(formData));
+
           // Set the name in screen2
           const nameDisplay = document.getElementById("name-display");
           if (nameDisplay) {
             nameDisplay.value = name;
           }
-          
+
           // Clear any existing rows in the table (to remove default rows)
           const tableBody = document.querySelector("#tableBody");
           if (tableBody) {
             tableBody.innerHTML = "";
           }
-          
+
           // Hide screen1 and show screen2
           if (screen1) screen1.style.display = "none";
           if (screen2) screen2.style.display = "block";
-          
+
           // Clear localStorage selections
-          localStorage.removeItem('selectedClient');
-          localStorage.removeItem('selectedProject');
-          
-          showAlert('Survey saved successfully!');
-          console.log('Saved with dates:', start_survey, end_survey, 'count:', survey_count);
+          localStorage.removeItem("selectedClient");
+          localStorage.removeItem("selectedProject");
+
+          showAlert("Survey saved successfully!");
+          console.log(
+            "Saved with dates:",
+            start_survey,
+            end_survey,
+            "count:",
+            survey_count,
+          );
         } else {
-          alert(`Failed to save survey: ${result.error || 'Unknown error'}`);
+          alert(`Failed to save survey: ${result.error || "Unknown error"}`);
         }
       } catch (error) {
-        console.error('Error saving survey:', error);
-        alert('An error occurred while saving. Please try again.');
+        console.error("Error saving survey:", error);
+        alert("An error occurred while saving. Please try again.");
       } finally {
         // Restore button state
         saveBtn.textContent = originalText;
@@ -2345,7 +2468,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function CancelToggle() {
   const screen1 = document.querySelector(".screen1");
   const screen2 = document.querySelector(".screen2");
-  
+
   if (screen1) screen1.style.display = "none";
   if (screen2) screen2.style.display = "block";
 }
@@ -2354,7 +2477,7 @@ function CancelToggle() {
 function Edit() {
   const screen1 = document.querySelector(".screen1");
   const screen2 = document.querySelector(".screen2");
-  
+
   if (screen1) screen1.style.display = "block";
   if (screen2) screen2.style.display = "none";
 }
@@ -2373,7 +2496,7 @@ function createUserPermission(doctypeName) {
   return fetch(`${API_BASE_URL}/api/resource/User Permission`, {
     method: "POST",
     headers: {
-      "Authorization": `Token ${API_TOKEN}`,
+      Authorization: `Token ${API_TOKEN}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(userPermissionData),
@@ -2393,51 +2516,51 @@ function createUserPermission(doctypeName) {
 
 // ==================== INITIALIZATION ====================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
   // --- Clear any existing data on page load for a fresh start ---
   localStorage.removeItem("selectedClient");
   localStorage.removeItem("selectedProject");
-  
+
   // --- Disable browser autofill on the entire form ---
-  const form = document.getElementById('createSurveyForm');
+  const form = document.getElementById("createSurveyForm");
   if (form) {
-    form.setAttribute('autocomplete', 'off');
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => input.setAttribute('autocomplete', 'off'));
+    form.setAttribute("autocomplete", "off");
+    const inputs = form.querySelectorAll("input, select, textarea");
+    inputs.forEach((input) => input.setAttribute("autocomplete", "off"));
   }
 
   // Fetch clients and projects
   fetchClientsAndProjects();
-  
+
   // Add event listeners to dropdowns
-  const clientDropdown = document.getElementById('client-dropdown');
-  const projectDropdown = document.getElementById('project-dropdown');
-  
+  const clientDropdown = document.getElementById("client-dropdown");
+  const projectDropdown = document.getElementById("project-dropdown");
+
   if (clientDropdown) {
-    clientDropdown.addEventListener('change', onClientChange);
+    clientDropdown.addEventListener("change", onClientChange);
   }
-  
+
   if (projectDropdown) {
-    projectDropdown.addEventListener('change', onProjectChange);
+    projectDropdown.addEventListener("change", onProjectChange);
   }
-  
+
   // Check if we're in edit mode
   const urlParams = new URLSearchParams(window.location.search);
   const flag = urlParams.get("flag") || "";
   const surveyName = urlParams.get("Survey") || "";
-  
+
   if (flag === "C" && surveyName) {
     const nameInput = document.getElementById("name");
     if (nameInput) {
       nameInput.value = surveyName;
     }
   }
-  
+
   // DON'T load saved form data - we want a fresh form
   // loadFormData(); // Commented out
-  
+
   // If no survey is being edited and no saved data, clear the table to remove any default rows from HTML
-  if (!surveyParam && !localStorage.getItem('formData')) {
+  if (!surveyParam && !localStorage.getItem("formData")) {
     const tableBody = document.querySelector("#tableBody");
     if (tableBody) {
       tableBody.innerHTML = "";
@@ -2445,7 +2568,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- NEW: If we just created a new form, force clear all fields again (overrides autofill) ---
-  if (sessionStorage.getItem('newForm') === 'true') {
+  if (sessionStorage.getItem("newForm") === "true") {
     // Immediate clear
     const nameField = document.getElementById("name");
     if (nameField) {
@@ -2459,25 +2582,26 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("unique_number").checked = false;
 
     // Uncheck radio buttons
-    document.querySelectorAll('input[name="slayout"]').forEach(radio => {
+    document.querySelectorAll('input[name="slayout"]').forEach((radio) => {
       radio.checked = false;
     });
 
-    const clientDropdown = document.getElementById('client-dropdown');
+    const clientDropdown = document.getElementById("client-dropdown");
     if (clientDropdown) {
       clientDropdown.value = "";
       // Also clear any selected option's default selection
       for (let opt of clientDropdown.options) opt.selected = false;
     }
 
-    const projectDropdown = document.getElementById('project-dropdown');
+    const projectDropdown = document.getElementById("project-dropdown");
     if (projectDropdown) {
-      projectDropdown.innerHTML = '<option value="">Select client first</option>';
+      projectDropdown.innerHTML =
+        '<option value="">Select client first</option>';
       projectDropdown.disabled = true;
     }
 
     // Remove the flag
-    sessionStorage.removeItem('newForm');
+    sessionStorage.removeItem("newForm");
 
     // Delayed second clear to catch any late autofill
     setTimeout(() => {
@@ -2486,34 +2610,35 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById("location-capture").checked = false;
       document.getElementById("audio-capture").checked = false;
       document.getElementById("unique_number").checked = false;
-      document.querySelectorAll('input[name="slayout"]').forEach(radio => {
+      document.querySelectorAll('input[name="slayout"]').forEach((radio) => {
         radio.checked = false;
       });
-      const clientDropdown = document.getElementById('client-dropdown');
+      const clientDropdown = document.getElementById("client-dropdown");
       if (clientDropdown) clientDropdown.value = "";
-      const projectDropdown = document.getElementById('project-dropdown');
+      const projectDropdown = document.getElementById("project-dropdown");
       if (projectDropdown) {
-        projectDropdown.innerHTML = '<option value="">Select client first</option>';
+        projectDropdown.innerHTML =
+          '<option value="">Select client first</option>';
         projectDropdown.disabled = true;
       }
     }, 150);
   }
-  
+
   // Update button display
   updateButtonDisplay();
 });
 
 // Show alert function
 function showAlert(message) {
-  const alert = document.getElementById('copyAlert');
-  const alertMessage = document.getElementById('alertMessage');
-  
+  const alert = document.getElementById("copyAlert");
+  const alertMessage = document.getElementById("alertMessage");
+
   if (alert && alertMessage) {
     alertMessage.textContent = message;
-    alert.classList.add('show');
+    alert.classList.add("show");
 
     setTimeout(() => {
-      alert.classList.remove('show');
+      alert.classList.remove("show");
     }, 3000);
   } else {
     alert(message);
@@ -2521,8 +2646,8 @@ function showAlert(message) {
 }
 
 function closeAlert() {
-  const alert = document.getElementById('copyAlert');
+  const alert = document.getElementById("copyAlert");
   if (alert) {
-    alert.classList.remove('show');
+    alert.classList.remove("show");
   }
 }

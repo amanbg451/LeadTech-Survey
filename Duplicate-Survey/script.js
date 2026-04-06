@@ -10,8 +10,12 @@ let FORM_STATE = {
   loc_mandatory: false,
   audio_mandatory: false,
   unique_number: false,
+  start_survey: "", // NEW - Survey start date
+  end_survey: "", // NEW - Survey end date
+  survey_count: 0,
   questions: [],
 };
+const API_TOKEN = "405e0af40f3d04a:885b55cc21d37d2";
 
 const LOCATION_MASTER = {
   "Uttar Pradesh": {
@@ -144,7 +148,6 @@ function addRow2(data) {
     variable = "decimal_input";
   else if (fieldType === "Date") variable = "date";
   else if (fieldType === "Time") variable = "time";
-  
   else if (fieldType === "Geolocation") variable = "geo_location";
   else if (fieldType === "Attach") {
     if (fieldOptions.toLowerCase().includes("audio")) variable = "audio_upload";
@@ -235,7 +238,6 @@ function preview() {
           .map((o) => o.trim())
           .filter((o) => o);
 
-        
         if (item.hasOthers) {
           optionsArr.push("Others");
         }
@@ -515,11 +517,21 @@ function loadFormData() {
 }
 
 function saveForm() {
+  // Get the new field values from UI
+  const startSurvey = document.getElementById("start_survey")?.value || "";
+  const endSurvey = document.getElementById("end_survey")?.value || "";
+  const surveyCount = document.getElementById("survey_count")?.value || 0;
+
   // Make sure FORM_STATE has the isPublish flag
-  if (!FORM_STATE.hasOwnProperty('isPublish')) {
+  if (!FORM_STATE.hasOwnProperty("isPublish")) {
     FORM_STATE.isPublish = "0";
   }
-  
+
+  // Update FORM_STATE with new fields
+  FORM_STATE.start_survey = startSurvey;
+  FORM_STATE.end_survey = endSurvey;
+  FORM_STATE.survey_count = parseInt(surveyCount, 10);
+
   localStorage.setItem("formData", JSON.stringify(FORM_STATE));
 
   document.getElementById("overlay").style.display = "block";
@@ -531,11 +543,11 @@ function saveForm() {
 function updateButtonDisplay() {
   const formData = JSON.parse(localStorage.getItem("formData") || "{}");
   const isPublish = formData.isPublish || "0";
-  
+
   console.log("updateButtonDisplay - isPublish:", isPublish); // Debug log
 
   const publishUpdateBtn = document.getElementById("publish_update_btn");
-  
+
   if (!publishUpdateBtn) {
     console.error("publish_update_btn not found!");
     return;
@@ -880,276 +892,526 @@ function closePopup() {
 }
 
 function generateFieldname(question, index, existingFields = []) {
-    if (!question || !question.questionName) {
-        return `field_${index + 1}`;
-    }
-    
-    // Convert question to lowercase, replace spaces with underscores, remove special characters
-    let baseFieldname = question.questionName
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-        .replace(/\s+/g, '_') // Replace spaces with underscore
-        .substring(0, 40); // Limit length
-    
-    // If base fieldname is empty after cleaning, use default
-    if (!baseFieldname) {
-        baseFieldname = `field_${index + 1}`;
-    }
-    
-    // Check if this fieldname already exists in existing fields
-    let fieldname = baseFieldname;
-    let counter = 1;
-    
-    while (existingFields.includes(fieldname)) {
-        fieldname = `${baseFieldname}_${counter}`;
-        counter++;
-    }
-    
-    return fieldname;
+  if (!question || !question.questionName) {
+    return `field_${index + 1}`;
+  }
+
+  // Convert question to lowercase, replace spaces with underscores, remove special characters
+  let baseFieldname = question.questionName
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "") // Remove special characters
+    .replace(/\s+/g, "_") // Replace spaces with underscore
+    .substring(0, 40); // Limit length
+
+  // If base fieldname is empty after cleaning, use default
+  if (!baseFieldname) {
+    baseFieldname = `field_${index + 1}`;
+  }
+
+  // Check if this fieldname already exists in existing fields
+  let fieldname = baseFieldname;
+  let counter = 1;
+
+  while (existingFields.includes(fieldname)) {
+    fieldname = `${baseFieldname}_${counter}`;
+    counter++;
+  }
+
+  return fieldname;
 }
 
 async function publishForm() {
-    console.log("Publish triggered");
+  console.log("Publish triggered");
 
-    const data = JSON.parse(localStorage.getItem("formData"));
-    if (!data || !data.name) {
-        alert("Please save survey details first");
-        return;
-    }
+  const data = JSON.parse(localStorage.getItem("formData"));
+  if (!data || !data.name) {
+    alert("Please save survey details first");
+    return;
+  }
 
-    const custom_fields = [];
-    const file_fields = [];
-    const hierarchy_fields = [];
-    const usedFieldnames = []; // Track used field names
+  console.log("Survey Name being published:", data.name);
 
-    data.questions.forEach((q, index) => {
-        if (!q.questionName) return;
+  // Build the fields array like the working code
+  const fieldsArray = [];
 
-        // Generate unique fieldname
-        let fieldname;
-        if (q.original_fieldname && !usedFieldnames.includes(q.original_fieldname)) {
-            // Use original fieldname if it's unique
-            fieldname = q.original_fieldname;
-        } else {
-            // Generate new unique fieldname
-            fieldname = generateFieldname(q, index, usedFieldnames);
-        }
-        
-        // Add to used fieldnames list
-        usedFieldnames.push(fieldname);
-
-        // --- System User field ---
-        if (q.inputType === "user") {
-            custom_fields.push({
-                label: q.questionName || "User",
-                fieldname: "custom_user", // Use a fixed name for user field
-                fieldtype: "Link",
-                options: "User",
-                reqd: 0,
-                hidden: 0,
-                read_only: 1,
-            });
-            return;
-        }
-
-        // --- Grid fields ---
-        if (
-            q.inputType === "drop_down_grid" ||
-            q.inputType === "checkbox_grid" ||
-            q.inputType === "data_grid"
-        ) {
-            hierarchy_fields.push({
-                label: q.questionName,
-                fieldname: fieldname,
-                fieldtype: "Table",
-                options: "Survey Matrix Row",
-                reqd: q.mandatory ? 1 : 0,
-                hidden: q.hidden ? 1 : 0,
-            });
-            return;
-        }
-
-        // --- Dropdown types (including dependent and "other") ---
-        if (
-            q.inputType === "drop_down" ||
-            q.inputType === "drop_down_other" ||
-            q.inputType === "drop_down_dependent"
-        ) {
-            let optionString = q.options || "";
-
-            if (q.inputType === "drop_down_other") {
-                let arr = optionString
-                    .split("\n")
-                    .map((x) => x.trim())
-                    .filter(Boolean);
-                if (!arr.some((x) => x.toLowerCase() === "others")) {
-                    arr.push("Others");
-                }
-                optionString = arr.join("\n");
-            }
-
-            let field = {
-                label: q.questionName,
-                fieldname: fieldname,
-                fieldtype: "Select",
-                options: optionString,
-                reqd: q.mandatory ? 1 : 0,
-                hidden: q.hidden ? 1 : 0,
-                description: q.description || "",
-            };
-
-            if (q.depends_on_field && q.depends_on_value) {
-                field.depends_on = `eval:doc.${q.depends_on_field}=='${q.depends_on_value}'`;
-            }
-
-            custom_fields.push(field);
-            return;
-        }
-
-        // --- Photo capture (Attach) ---
-        if (q.inputType === "photo_capture") {
-            file_fields.push({
-                label: q.questionName,
-                fieldname: fieldname,
-                fieldtype: "Attach",
-                reqd: q.mandatory ? 1 : 0,
-                hidden: q.hidden ? 1 : 0,
-                description: q.description || "",
-            });
-            return;
-        }
-
-        // --- Geo location ---
-        if (q.inputType === "geo_location" || q.inputType === "map_coordinates") {
-            custom_fields.push({
-                label: q.questionName,
-                fieldname: fieldname,
-                fieldtype: "Geolocation",
-                reqd: q.mandatory ? 1 : 0,
-                hidden: 0,
-                read_only: 0,
-                description: q.description || "",
-            });
-            return;
-        }
-
-        // --- Audio upload (Attach with Audio option) ---
-        if (q.inputType === "audio_upload") {
-            file_fields.push({
-                fieldname: fieldname,
-                label: q.questionName,
-                fieldtype: "Attach",
-                reqd: q.mandatory ? 1 : 0,
-                hidden: 0,
-                options: "Audio",
-                description: q.description || "",
-            });
-            return;
-        }
-
-        // --- All other field types ---
-        let fieldtype = q.original_fieldtype;
-
-        if (!fieldtype) {
-            switch (q.inputType) {
-                case "singleline_text_input": fieldtype = "Data"; break;
-                case "multiline_text_input": fieldtype = "Long Text"; break;
-                case "number_input": fieldtype = "Int"; break;
-                case "decimal_input": fieldtype = "Currency"; break;
-                case "date": fieldtype = "Date"; break;
-                case "time": fieldtype = "Time"; break;
-                case "checkbox": fieldtype = "Check"; break;
-                case "rating": fieldtype = "Rating"; break;
-                case "text_block": fieldtype = "Section Break"; break;
-                default: fieldtype = "Data";
-            }
-        }
-
-        let field = {
-            label: q.questionName,
-            fieldname: fieldname,
-            fieldtype: fieldtype,
-            reqd: q.mandatory ? 1 : 0,
-            hidden: q.hidden ? 1 : 0,
-            description: q.description || "",
-        };
-
-        if (q.options && (fieldtype === "Select" || fieldtype === "MultiSelect")) {
-            field.options = q.options;
-        }
-
-        if (q.depends_on_field && q.depends_on_value) {
-            field.depends_on = `eval:doc.${q.depends_on_field}=='${q.depends_on_value}'`;
-        }
-
-        custom_fields.push(field);
+  // Add header field if exists
+  if (data.header && data.header.trim()) {
+    fieldsArray.push({
+      fieldname: "header",
+      fieldtype: "Heading",
+      label: data.header,
+      description: "",
+      options: "",
     });
+  }
 
-    // Add validation to check for duplicate fieldnames
-    const fieldnameCount = {};
-    let hasDuplicate = false;
-    
-    [...custom_fields, ...file_fields, ...hierarchy_fields].forEach(field => {
-        if (field.fieldname) {
-            fieldnameCount[field.fieldname] = (fieldnameCount[field.fieldname] || 0) + 1;
-            if (fieldnameCount[field.fieldname] > 1) {
-                console.error(`Duplicate fieldname found: ${field.fieldname}`);
-                hasDuplicate = true;
-            }
-        }
+  // Add welcome image if exists
+  if (data.Wel_image && data.Wel_image.url) {
+    fieldsArray.push({
+      fieldname: "welcome_image",
+      fieldtype: "Image",
+      label: "Welcome Image",
+      options: data.Wel_image.url,
     });
+  }
 
-    if (hasDuplicate) {
-        alert("Error: Duplicate field names detected. Please check your questions for similar names.");
-        return;
+  // Add location field if mandatory
+  if (data.loc_mandatory) {
+    fieldsArray.push({
+      fieldname: "location",
+      fieldtype: "Geolocation",
+      label: "Location",
+      options: "",
+      reqd: data.loc_mandatory ? 1 : 0,
+    });
+  }
+
+  // Add audio field if mandatory
+  if (data.audio_mandatory) {
+    fieldsArray.push({
+      fieldname: "audio",
+      fieldtype: "Attach",
+      label: "Audio",
+      options: "Audio",
+      reqd: data.audio_mandatory ? 1 : 0,
+    });
+  }
+
+  // Add unique number field if enabled
+  if (data.unique_number) {
+    fieldsArray.push({
+      fieldname: "unique_number",
+      fieldtype: "Data",
+      label: "Unique Number",
+      options: "",
+      reqd: 1,
+      unique: 1,
+    });
+  }
+
+  // NEW: Add survey date fields (always added like in working code)
+  fieldsArray.push({
+    fieldname: "survey_start_date",
+    fieldtype: "Datetime",
+    label: "Survey Start Date",
+    options: "",
+    reqd: 1,
+  });
+
+  fieldsArray.push({
+    fieldname: "survey_end_date",
+    fieldtype: "Datetime",
+    label: "Survey End Date",
+    options: "",
+    reqd: 1,
+  });
+
+  fieldsArray.push({
+    fieldname: "survey_duration",
+    fieldtype: "Data",
+    label: "Survey Duration",
+    options: "",
+    reqd: 1,
+  });
+
+  // Filter out system questions before processing
+  const regularQuestions = data.questions.filter((q) => {
+    // Skip system questions that are only for UI display
+    if (q.system === true) return false;
+    // Skip by question name if they match system fields
+    if (q.questionName === "User" && q.inputType === "user") return false;
+    if (q.questionName === "Geo Location" && q.inputType === "geo_location")
+      return false;
+    if (q.questionName === "Audio Upload" && q.inputType === "audio_upload")
+      return false;
+    if (q.questionName === "Unique Number" && q.inputType === "number_input")
+      return false;
+    return true;
+  });
+
+  console.log("Regular questions to publish:", regularQuestions.length);
+  console.log(
+    "Skipped system questions:",
+    data.questions.length - regularQuestions.length,
+  );
+
+  // Process only regular questions
+  regularQuestions.forEach((q, index) => {
+    if (!q.questionName) return;
+
+    const reqd = q.mandatory ? 1 : 0;
+    const fieldname = `q_${index + 1}`;
+
+    // CRITICAL FIX: Split long labels (>140 chars) into label and description
+    let label = q.questionName;
+    let description = q.description || "";
+
+    // Check if label exceeds 140 characters
+    if (label.length > 140) {
+      // First 140 chars go to label (without "...")
+      label = label.substring(0, 140);
+
+      // Remaining chars go to description
+      const remainingText = q.questionName.substring(140);
+
+      // If there's already description content, combine
+      if (description && description.trim()) {
+        description = remainingText + "\n\n" + description;
+      } else {
+        description = remainingText;
+      }
+
+      console.log(`📝 Split long label for ${fieldname}:`, {
+        original_length: q.questionName.length,
+        label_length: label.length,
+        description_length: description.length,
+      });
     }
 
-    const finalPayload = {
-        data: {
-            doctype_name: data.name,
-            module: "leadtech_survey",
-            custom_fields,
-            file_fields,
-        },
-    };
+    // Handle different input types
+    switch (q.inputType) {
+      case "drop_down":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Select",
+          label: label,
+          description: description,
+          options: q.options || "",
+          reqd: reqd,
+        });
+        break;
 
-    if (hierarchy_fields.length > 0) {
-        finalPayload.data.child_table = "Survey Matrix Row";
-        finalPayload.data.hierarchy_fields = hierarchy_fields;
-    }
-
-    console.log("FINAL PAYLOAD:", finalPayload);
-
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/method/leadtech_survey.leadtech_survey.create_survey.create_doctype_only`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Frappe-CSRF-Token": frappe.csrf_token,
-                },
-                credentials: "include",
-                body: JSON.stringify(finalPayload),
-            }
+      case "drop_down_other":
+        let dropDownOptions = q.options ? q.options.split("\n") : [];
+        dropDownOptions = dropDownOptions
+          .map((opt) => opt.trim())
+          .filter((opt) => opt);
+        const hasOthers = dropDownOptions.some(
+          (opt) => opt.toLowerCase() === "others",
         );
-
-        const result = await response.json();
-        console.log("API RESPONSE:", result);
-
-        if (result.message?.status === "success") {
-            alert("Survey published successfully!");
-            disableUnloadWarning();
-            closePopup();
-            localStorage.removeItem("formData");
-            window.location.reload();
-        } else {
-            alert(result._error_message || "Survey creation failed");
+        if (!hasOthers) {
+          dropDownOptions.push("Others");
         }
-    } catch (err) {
-        console.error(err);
-        alert("API call failed");
+
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Select",
+          label: label,
+          description: description,
+          options: dropDownOptions.join("\n"),
+          reqd: reqd,
+        });
+
+        fieldsArray.push({
+          fieldname: `other_${fieldname}`,
+          fieldtype: "Small Text",
+          label: "Other (please specify)",
+          description: "Enter your answer if you selected 'Others' above",
+          options: "",
+          reqd: 0,
+        });
+        break;
+
+      // ... rest of your switch cases remain the same ...
+      case "radio_button":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Select",
+          label: label,
+          description: description,
+          options: q.options || "",
+          reqd: reqd,
+        });
+        break;
+
+      case "checkbox_list":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "MultiSelect",
+          label: label,
+          description: description,
+          options: q.options || "",
+          reqd: reqd,
+        });
+        break;
+
+      case "text_block":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Heading",
+          label: label,
+          description: description,
+          options: "",
+        });
+        break;
+
+      case "singleline_text_input":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Data",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "multiline_text_input":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Long Text",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "number_input":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Int",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "decimal_input":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Float",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "email":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Data",
+          label: label,
+          description: description,
+          options: "Email",
+          reqd: reqd,
+        });
+        break;
+
+      case "phone_number":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Data",
+          label: label,
+          description: description,
+          options: "Phone",
+          reqd: reqd,
+        });
+        break;
+
+      case "date":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Date",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "time":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Time",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "photo_capture":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Attach",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "audio_upload":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Attach",
+          label: label,
+          description: description,
+          options: "Audio",
+          reqd: reqd,
+        });
+        break;
+
+      case "geo_location":
+      case "map_coordinates":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Geolocation",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "checkbox":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Check",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "rating":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Rating",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
+        break;
+
+      case "drop_down_dependent":
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Select",
+          label: label,
+          description: description,
+          options: q.options || "",
+          reqd: reqd,
+          depends_on:
+            q.depends_on_field && q.depends_on_value
+              ? `eval:doc.${q.depends_on_field}=='${q.depends_on_value}'`
+              : "",
+        });
+        break;
+
+      default:
+        fieldsArray.push({
+          fieldname: fieldname,
+          fieldtype: "Data",
+          label: label,
+          description: description,
+          options: "",
+          reqd: reqd,
+        });
     }
+  });
+
+  // Always add user field at the end
+  fieldsArray.push({
+    fieldname: "user",
+    fieldtype: "Link",
+    label: "User",
+    options: "User",
+    reqd: 1,
+  });
+
+  // Build the final payload
+  const finalPayload = {
+    __newname: data.name,
+    module: "leadtech_survey",
+    track_changes: 1,
+    track_seen: 1,
+    track_views: 1,
+    custom: 1,
+    naming_rule: "Expression (old style)",
+    autoname: data.name + ".######",
+    name_case: "Title Case",
+    allow_rename: 1,
+    index_web_pages_for_search: 1,
+    fields: fieldsArray,
+    permissions: [
+      {
+        role: "Leadtech Survey Admin",
+        read: 1,
+        write: 1,
+        create: 1,
+        delete: 1,
+        report: 1,
+        export: 1,
+      },
+      {
+        role: "Super Admin LeadTech",
+        read: 1,
+        write: 1,
+        create: 1,
+        delete: 1,
+        report: 1,
+        export: 1,
+      },
+    ],
+  };
+
+  console.log("FINAL PAYLOAD:", finalPayload);
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/method/leadtech_survey.leadtech_survey.create_survey_doctype.allow_doctype_creation`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${API_TOKEN}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(finalPayload),
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error response:", errorText);
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log("API RESPONSE:", result);
+
+    if (result.message?.status === "success" || result.message) {
+      alert("Survey published successfully!");
+
+      createUserPermission(data.name);
+
+      const formData = JSON.parse(localStorage.getItem("formData") || "{}");
+      formData.isPublish = "1";
+      localStorage.setItem("formData", JSON.stringify(formData));
+
+      disableUnloadWarning();
+      closePopup();
+
+      setTimeout(() => {
+        newForm();
+      }, 500);
+    } else {
+      alert(
+        result._error_message ||
+          result.message?.message ||
+          "Survey creation failed",
+      );
+    }
+  } catch (err) {
+    console.error("Publish failed:", err);
+    alert("Failed to publish form: " + err.message);
+  }
 }
 
 let draggedRow = null;
@@ -1232,7 +1494,7 @@ function loadSurveyForDuplication(surveyName) {
   fetch(apiUrl, {
     method: "GET",
     headers: {
-      Authorization: "Token 405e0af40f3d04a:885b55cc21d37d2",
+      Authorization: `Token ${API_TOKEN}`,
       "Content-Type": "application/json",
     },
   })
@@ -1268,47 +1530,109 @@ function loadSurveyForDuplication(surveyName) {
         loc_mandatory: false,
         audio_mandatory: false,
         unique_number: false,
+        start_survey: "", // NEW - Reset start survey
+        end_survey: "", // NEW - Reset end survey
+        survey_count: 0, // NEW - Reset survey count
         questions: [],
-        isPublish: "0", // <-- IMPORTANT: Set to "0" for draft
+        isPublish: "0",
       };
 
       // Sort fields by original order
       const sortedFields = data.data.fields.sort(
-        (a, b) => (a.idx || 0) - (b.idx || 0)
+        (a, b) => (a.idx || 0) - (b.idx || 0),
       );
 
+      // List of system field names that should never appear as questions
+      const systemFieldNames = [
+        "user",
+        "location",
+        "audio",
+        "survey_start_date",
+        "survey_end_date",
+        "survey_duration",
+        "welcome_image",
+        "header",
+      ];
+
       sortedFields.forEach((item) => {
-        // Skip only Link and Image fields
-        if (
-          item.fieldtype === "Link" ||
-          item.fieldtype === "Image"
-        ) {
+        console.log(
+          "Processing field:",
+          item.fieldname,
+          item.fieldtype,
+          item.label,
+        );
+
+        // Skip all system fields by fieldname
+        if (systemFieldNames.includes(item.fieldname)) {
+          console.log(`Skipping system field: ${item.fieldname}`);
+
+          // Set the appropriate flags based on the field
+          if (item.fieldname === "location") {
+            FORM_STATE.loc_mandatory = item.reqd === 1;
+          }
+          if (item.fieldname === "audio") {
+            FORM_STATE.audio_mandatory = item.reqd === 1;
+          }
+          if (
+            item.fieldname === "welcome_image" &&
+            item.fieldtype === "Image"
+          ) {
+            FORM_STATE.Wel_image = item.options || "";
+          }
+          if (item.fieldname === "header" && item.fieldtype === "Heading") {
+            FORM_STATE.header = item.label || "";
+          }
+          // Note: survey_start_date, survey_end_date, survey_duration are not stored in FORM_STATE
+          // as they are handled separately in the UI
+          return; // Skip adding to questions
+        }
+
+        // Also skip by fieldtype for any other Link fields that might be user
+        if (item.fieldtype === "Link" && item.options === "User") {
+          console.log(`Skipping User Link field: ${item.fieldname}`);
           return;
         }
 
-        // Detect system fields and set flags
-        if (item.fieldtype === "Geolocation") {
-          FORM_STATE.loc_mandatory = item.reqd === 1;
-          return; // do NOT add to questions
+        // Skip Image fields (like welcome image)
+        if (item.fieldtype === "Image") {
+          console.log(`Skipping Image field: ${item.fieldname}`);
+          return;
         }
 
-        if (
-          item.fieldtype === "Attach" &&
-          (item.options || "").toLowerCase().includes("audio")
+        // Skip Small Text fields (these are usually "Other" text fields)
+        if (item.fieldtype === "Small Text") {
+          console.log(`Skipping Small Text field: ${item.fieldname}`);
+          return;
+        }
+
+        // For all other fields that start with 'q_' (regular questions), add to questions array
+        if (item.fieldname && item.fieldname.startsWith("q_")) {
+          console.log(`Adding regular question: ${item.fieldname}`);
+          addFieldToFormState(item);
+        } else if (
+          item.fieldname &&
+          !systemFieldNames.includes(item.fieldname)
         ) {
-          FORM_STATE.audio_mandatory = item.reqd === 1;
-          return; // skip
+          // Also add any other custom fields that might not follow q_ naming convention
+          console.log(`Adding custom field: ${item.fieldname}`);
+          addFieldToFormState(item);
         }
-
-        if (item.fieldtype === "Link" && item.options === "User") {
-          return; // skip, will be added by addSystemQuestionIfMissing
-        }
-
-        // For all other fields, add as regular questions
-        addFieldToFormState(item);
       });
 
-      // Add the hidden User field (always present)
+      // Add system questions to UI builder based on flags
+      if (FORM_STATE.loc_mandatory) {
+        addSystemQuestionIfMissing("geo_location", "Geo Location");
+      } else {
+        removeSystemQuestion("geo_location", "Geo Location");
+      }
+
+      if (FORM_STATE.audio_mandatory) {
+        addSystemQuestionIfMissing("audio_upload", "Audio Upload");
+      } else {
+        removeSystemQuestion("audio_upload", "Audio Upload");
+      }
+
+      // Always add User field in UI builder
       addSystemQuestionIfMissing("user", "User");
 
       // Update checkboxes on screen1
@@ -1336,26 +1660,34 @@ function addFieldToFormState(data) {
   console.log("Adding field to FORM_STATE:", data);
 
   let variable = "select";
-  const isMandatory = data.reqd === 1 || data.reqd === "1" || data.reqd === true;
+  const isMandatory =
+    data.reqd === 1 || data.reqd === "1" || data.reqd === true;
   const fieldType = (data.fieldtype || "").trim();
   const fieldOptions = (data.options || "").trim();
 
   // Map fieldtype to inputType
   if (fieldType === "Select") {
-    const optionLines = fieldOptions.split("\n").map(o => o.trim().toLowerCase());
+    const optionLines = fieldOptions
+      .split("\n")
+      .map((o) => o.trim().toLowerCase());
     variable = optionLines.includes("others") ? "drop_down_other" : "drop_down";
   } else if (fieldType === "MultiSelect") variable = "checkbox_list";
   else if (fieldType === "Int") variable = "number_input";
-  else if (fieldType === "Float" || fieldType === "Currency") variable = "decimal_input";
+  else if (fieldType === "Float" || fieldType === "Currency")
+    variable = "decimal_input";
   else if (fieldType === "Date") variable = "date";
   else if (fieldType === "Time") variable = "time";
   else if (fieldType === "Geolocation") variable = "geo_location";
   else if (fieldType === "Attach") {
-    variable = fieldOptions.toLowerCase().includes("audio") ? "audio_upload" : "photo_capture";
+    variable = fieldOptions.toLowerCase().includes("audio")
+      ? "audio_upload"
+      : "photo_capture";
   } else if (fieldType === "Check") variable = "checkbox";
   else if (fieldType === "Rating") variable = "rating";
-  else if (fieldType === "Section Break" || fieldType === "Heading") variable = "text_block";
-  else if (fieldType === "Long Text" || fieldType === "Text") variable = "multiline_text_input";
+  else if (fieldType === "Section Break" || fieldType === "Heading")
+    variable = "text_block";
+  else if (fieldType === "Long Text" || fieldType === "Text")
+    variable = "multiline_text_input";
   else if (fieldType === "Small Text") {
     // Small Text is an auxiliary field (e.g., for "Other") – map to a simple text input
     variable = "singleline_text_input";
@@ -1371,15 +1703,17 @@ function addFieldToFormState(data) {
     if (cleanOptions) {
       let lines = cleanOptions.split("\n");
       // Remove first line if it's a type indicator
-      if (lines.length > 0 &&
-          (lines[0].includes("Select Type") ||
-           lines[0].includes("Radio Type") ||
-           lines[0].includes("Check Type"))) {
+      if (
+        lines.length > 0 &&
+        (lines[0].includes("Select Type") ||
+          lines[0].includes("Radio Type") ||
+          lines[0].includes("Check Type"))
+      ) {
         lines.shift();
       }
       // For drop_down_other, remove the literal "Others" option
       if (variable === "drop_down_other") {
-        lines = lines.filter(o => o.trim().toLowerCase() !== "others");
+        lines = lines.filter((o) => o.trim().toLowerCase() !== "others");
       }
       cleanOptions = lines.join("\n");
     }
@@ -1390,7 +1724,7 @@ function addFieldToFormState(data) {
 
   // Hidden logic: Small Text fields are always hidden in the UI builder;
   // otherwise preserve the original hidden flag.
-  const hidden = (fieldType === "Small Text") ? true : (data.hidden ? true : false);
+  const hidden = fieldType === "Small Text" ? true : data.hidden ? true : false;
 
   FORM_STATE.questions.push({
     inputType: variable,
@@ -1405,7 +1739,7 @@ function addFieldToFormState(data) {
     system: data.system ? true : false,
     depends_on_field: data.depends_on || "",
     depends_on_value: data.depends_on_value || "",
-    original_fieldtype: fieldType,   // <-- critical for correct publishing
+    original_fieldtype: fieldType, // <-- critical for correct publishing
     original_fieldname: data.fieldname || "",
   });
 }
@@ -1640,7 +1974,7 @@ function saveSurveyMeta() {
     document.getElementById("location-capture").checked;
   FORM_STATE.audio_mandatory = document.getElementById("audio-capture").checked;
   FORM_STATE.unique_number = document.getElementById("unique-number").checked;
-  
+
   // IMPORTANT: Set isPublish to "0" for new/duplicated forms
   FORM_STATE.isPublish = "0";
 
